@@ -1,0 +1,440 @@
+﻿@inherits BaseLoggedAppComponent
+@page "/TreeNotes"
+@inject HttpClient Http;
+@using TreeDocs.Domain.RequestsResponses
+@using TreeDocs.ClientApp.Model
+
+<div>
+    <SfSpinner @ref="Spinner" Type="SpinnerType.Material">
+    </SfSpinner>
+</div>
+<div id="treeview" style="height:100%">
+<div><button @onclick="onRefresh">Refresh</button></div>
+    <SfTreeView AllowMultiSelection="false" TValue="TreeViewNode" @ref="@treeView" AllowDragAndDrop="true">
+        <TreeViewFieldsSettings TValue="TreeViewNode" DataSource="@Nodes" Id="Id" Text="Name" Child="Children" Expanded="HasChildren" IconCss="Type"></TreeViewFieldsSettings>
+        <TreeViewEvents TValue="TreeViewNode" 
+                        NodeEdited="onBeforeRename" 
+                        NodeSelected="onNodeSelected" 
+                        NodeSelecting="onNodeSelecting" 
+                        NodeClicked="onNodeClicked" 
+                        OnNodeDragStop="onNodeDropped"  />
+        <SfContextMenu TValue="MenuItem" @ref="contextMenu" Target="#treeview">
+            <MenuItems>
+                <MenuItem Id="addNote" Text="Add new note"></MenuItem>
+                <MenuItem Id="delNote" Text="@removeNoteCaptionMenu" Hidden="@hiddenRemoveNoteContextMenu"></MenuItem>
+                <MenuItem Id="renameNote" Text="@changeNoteNameCaptionMenu" Hidden="@hiddenChangeNoteNameContextMenu"></MenuItem>
+            </MenuItems>
+            <MenuEvents TValue="MenuItem" ItemSelected="@popupMenuItemSelected"></MenuEvents>
+        </SfContextMenu>
+    </SfTreeView>
+</div>
+@*<div>@DebugMsg</div>*@
+<style>
+    .e-treeview .e-list-icon.folder {
+        background-image: url("/images/folder.png");
+        background-repeat: no-repeat;
+    }
+
+    .e-treeview .e-list-icon.note {
+        background-image: url("/images/note.png");
+        background-repeat: no-repeat;
+    }
+
+    .e-treeview .e-list-icon.user {
+        background-image: url("/images/user.png");
+        background-repeat: no-repeat;
+    }
+    .e-treeview .e-list-item.e-hover > .e-fullrow {
+        background-color: darkgray;
+        border-color: #f2f4f6;
+    }
+
+    .e-treeview .e-list-text {
+        line-height: 18px;
+        min-height: 0px;
+    }
+
+    .e-treeview .e-fullrow {
+        height: 25px;
+    }
+
+    .e-treeview .e-ul {
+        margin: 5px 5px 5px 5px;
+        padding: 0 0 2px 2px;
+    }
+    .e-btn .e-btn-icon.e-icon-left,
+    .e-css.e-btn .e-btn-icon.e-icon-left {
+        padding: 0 0;
+    }
+    /*
+    .e-treeview .e-list-text {
+        font-size: 12px;
+    }
+    .e-treeview .e-list-icon, .e-treeview .e-list-img {
+        height: 16px;
+        margin: 2.5px 0 0 0px;
+    }
+        */
+/*
+    .e-treeview .e-list-item {
+        padding: 0 0;
+    }
+    .e-treeview .e-list-icon,
+    .e-treeview .e-list-img {
+        margin: 0;
+    }
+    .e-list-item {
+        list-style: none;
+    }
+
+    .e-treeview {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .e-treeview .e-list-icon + .e-list-text,
+    .e-treeview .e-list-img + .e-list-text {
+        padding: 0;
+    }
+*/
+</style>
+@code {
+    [Parameter]
+    public EventCallback<NodeChangingEvent> OnNodeChanging { get; set; }
+    [Parameter]
+    public EventCallback<NodeChangedEvent> OnNodeChanged { get; set; }
+
+    List<TreeViewNode> Nodes;
+    TreeViewNode RootNode;
+    SfTreeView<TreeViewNode> treeView;
+    SfContextMenu<MenuItem> contextMenu;
+    public TreeViewNode SelectedNode;
+    public string removeNoteCaptionMenu;
+    public string changeNoteNameCaptionMenu;
+    public bool hiddenRemoveNoteContextMenu;
+    public bool hiddenChangeNoteNameContextMenu;
+    string DebugMsg = "...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReadNodesFromServer();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task onNodeSelecting(NodeSelectEventArgs args)
+    {
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + ". On node selecting enter");
+        DebugMsg = args.Action + " / " + args.NodeData.Id;
+
+        var previousSelectedNode = this.SelectedNode;
+        var onNodeChangingArgs = new NodeChangingEvent
+        {
+            NewNodeId = args.NodeData.Id,
+            PreviousNodeId = previousSelectedNode?.Id
+        };
+        await OnNodeChanging.InvokeAsync(onNodeChangingArgs);
+
+        args.Cancel = (onNodeChangingArgs?.Cancel == true);
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + ". On node selecting exit");
+    }
+
+    private async Task onNodeSelected(NodeSelectEventArgs args)
+    {
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + ". On node selected enter");
+        var previousSelectedNode = this.SelectedNode;
+        var onNodeChangedArgs = new NodeChangedEvent
+        {
+            NewNodeId = args.NodeData.Id,
+            PreviousNodeId = previousSelectedNode?.Id
+        };
+        this.SelectedNode = getNodeById(args.NodeData.Id);
+        await OnNodeChanged.InvokeAsync(onNodeChangedArgs);
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + ". On node selected exit");
+    }
+
+    private void onNodeClicked(NodeClickEventArgs args)
+    {
+        this.SelectedNode = getNodeById(args.NodeData.Id);
+        if (this.SelectedNode != null)
+        {
+            hiddenRemoveNoteContextMenu = this.SelectedNode.ParentId == null;
+            hiddenChangeNoteNameContextMenu = this.SelectedNode.ParentId == null;
+            if( !hiddenRemoveNoteContextMenu)
+                removeNoteCaptionMenu = $"Remove note '{this.SelectedNode.Name}'";
+            if (!hiddenChangeNoteNameContextMenu)
+                changeNoteNameCaptionMenu = $"Change name of note '{this.SelectedNode.Name}'";
+        }
+    }
+
+    private async void onRefresh()
+    {
+        Console.WriteLine("Refresh");
+        await ReadNodesFromServer();
+    }
+
+    public void SetSelectedNode(string nodeId)
+    {
+        treeView.SelectedNodes = new[] { nodeId };
+    }
+
+    private async void onNodeDropped(DragAndDropEventArgs args)
+    {
+        //        DebugMsg = args.DropIndex?.ToString();
+
+        Console.WriteLine("---------------");
+        Console.WriteLine("args.DropIndicator: " + args.DropIndicator);
+        Console.WriteLine("args.DropIndex: " + args.DropIndex);
+        Console.WriteLine("args.DroppedNodeData.Id: " + args.DroppedNodeData?.Id ?? "Null");
+
+        if (args.DraggedNodeData == null || args.DropIndicator == null)
+        {
+            args.Cancel = true;
+            return;
+        }
+        TreeViewNode droppedNode;
+
+        var draggedNode = getNodeById(args.DraggedNodeData.Id);
+        if (args.DroppedNodeData?.Id != null)
+        {
+            droppedNode = getNodeById(args.DroppedNodeData.Id);
+            Console.WriteLine("1_DroppedNode.Name: " + droppedNode.Name);
+        }
+        else
+        {
+            droppedNode = draggedNode;
+            Console.WriteLine("2_DroppedNode.Name: " + droppedNode.Name);
+        }
+        Console.WriteLine("1_DraggedNode.Name: " + draggedNode.Name);
+
+        bool success = true;
+
+        var parentNode = droppedNode;
+        if (args.DropIndicator.Equals("e-drop-next"))
+        {
+            parentNode = getNodeById(droppedNode.ParentId);
+            if (parentNode == null)
+            {
+                args.Cancel = true;
+                return;
+            }
+        }
+
+        if (parentNode.Id == draggedNode.ParentId && args.DropIndicator.Equals("e-drop-in"))
+        { // do nothing if the dragged node is dropped directly in his current parent
+            args.Cancel = true;
+            return;
+        }
+
+        if (parentNode.Id == draggedNode.Id)
+        { // node cannot be its own parent
+            args.Cancel = true;
+            return;
+        }
+
+        if (parentNode.Id != draggedNode.ParentId)
+        {
+            success = await updateNodeParentOnServer(draggedNode.Id, parentNode.Id);
+            draggedNode.ParentId = parentNode.Id;
+            if (success)
+            {
+                var newChildrenOrder = parentNode.Children.Where(x => x.Id != draggedNode.Id).Select(x => x.Id).ToList();
+                if (args.DropIndicator.Equals("e-drop-in"))
+                {
+                    newChildrenOrder.Add(draggedNode.Id);
+                    await updateNodeChildrenOrderOnServer(parentNode.Id, newChildrenOrder);
+                }
+                else
+                    if (args.DropIndex.HasValue)
+                {
+                    newChildrenOrder.Insert(args.DropIndex.Value, draggedNode.Id);
+                    await updateNodeChildrenOrderOnServer(parentNode.Id, newChildrenOrder);
+                }
+            }
+        }
+        else
+        {
+            if (args.DropIndex.HasValue)
+            {
+                var currentPosition = parentNode.Children.IndexOf(draggedNode);
+                if (currentPosition <= args.DropIndex.Value)
+                    args.DropIndex++;
+                var newChildrenOrder = parentNode.Children.Where(x => x.Id != draggedNode.Id).Select(x => x.Id).ToList();
+                if (args.DropIndex.Value >= newChildrenOrder.Count)
+                    newChildrenOrder.Add(draggedNode.Id);
+                else
+                    newChildrenOrder.Insert(args.DropIndex.Value, draggedNode.Id);
+                await updateNodeChildrenOrderOnServer(parentNode.Id, newChildrenOrder);
+            }
+        }
+        args.Cancel = !success;
+    }
+
+    private async void onBeforeRename(NodeEditEventArgs args)
+    {
+        bool success = false;
+        if ( args.OldText.Equals(args.NewText)) return;
+        if( SelectedNode != RootNode && !args.NewText.EqualsIgnoreCase("undefined"))
+            success = await updateNodeName(SelectedNode, args.NewText);
+        args.Cancel = !success;
+        if (!success)
+            SelectedNode.Name = args.OldText;
+        StateHasChanged();
+    }
+
+    private async Task popupMenuItemSelected(MenuEventArgs<MenuItem> e)
+    {
+        if (SelectedNode == null) return;
+        if (e.Item.Id == "addNote")
+        {
+            var newName = getNewNoteName(SelectedNode.Id);
+            var parentId = SelectedNode.Id;
+            var nodeId = await createNodeOnServer(SelectedNode.Id, newName);
+            if (nodeId != null)
+            {
+                var parentNode = getNodeById(parentId);
+                parentNode.Children.Add(new TreeViewNode { Id = nodeId, Name = newName, ParentId = parentId, Children = new List<TreeViewNode>() });
+                StateHasChanged();
+            }
+        }
+        else
+        if (e.Item.Id == "delNote")
+        {
+            if (SelectedNode == RootNode) return;
+            if (await deleteNodeOnServer(SelectedNode.Id))
+            {
+                var parentNode = getNodeById(SelectedNode.ParentId);
+                parentNode.Children.RemoveAll(x => x.Id == SelectedNode.Id);
+                StateHasChanged();
+                Notifier.ShowSucess("Note deleted successfully.");
+            }
+        }
+        else
+        if (e.Item.Id == "renameNote")
+        {
+            this.treeView.BeginEdit(SelectedNode.Id);
+        }
+    }
+
+    protected async Task<string> createNodeOnServer(string parentId, string nodeName)
+    {
+        var createdNodeRequest = new CreateNodeRequest { ParentId = parentId,
+            Name = nodeName,
+            NodeType = Domain.Enums.NodeType.Document,
+            Contents = null };
+
+        var newNode = await ExecPostRequest<CreateNodeResponse>($"{ServerUrl}/api/v1/nodes", createdNodeRequest);
+
+        return newNode?.Id;
+    }
+
+
+    protected async Task<bool> updateNodeName(TreeViewNode node, string newName)
+    {
+        var parentId = node.ParentId;
+        var updateNodeRequest = new UpdateUserNodeDataRequest { NodeId = node.Id, Name = newName };
+
+        var response = await ExecPutRequest<UpdateUserNodeDataResponse>($"{ServerUrl}/api/v1/nodes", updateNodeRequest);
+
+        return response != null;
+    }
+
+    protected async Task<bool> updateNodeParentOnServer(string nodeId, string newParentId)
+    {
+        var updateNodeRequest = new UpdateUserNodeDataRequest { NodeId = nodeId, ParentId=newParentId };
+
+        var response = await ExecPutRequest<UpdateUserNodeDataResponse>($"{ServerUrl}/api/v1/nodes", updateNodeRequest);
+
+        return response != null;
+    }
+
+    protected async Task<bool> updateNodeChildrenOrderOnServer(string nodeId, List<string> newChildrenOrder)
+    {
+        var updateNodeRequest = new UpdateUserNodeDataRequest { NodeId = nodeId, ChildrenOrder = newChildrenOrder };
+
+        var response = await ExecPutRequest<UpdateUserNodeDataResponse>($"{ServerUrl}/api/v1/nodes", updateNodeRequest);
+
+        return response != null;
+    }
+
+    protected async Task<bool> deleteNodeOnServer(string nodeId)
+    {
+        var deleteNodeRequest = new DeleteNodeRequest { NodeId = nodeId };
+
+        await ExecDeleteRequest<DeleteNodeResponse>($"{ServerUrl}/api/v1/nodes/{nodeId}", deleteNodeRequest);
+
+        return true;
+    }
+
+    protected async Task ReadNodesFromServer()
+    {
+        List<TreeViewNode> userNodes = new List<TreeViewNode>();
+        try
+        {
+            var dbNodes = await ExecGetRequest<GetUserNodesResponse>($"{ServerUrl}/api/v1/nodes");
+            if (dbNodes?.Nodes?.Any() != true)
+                return;
+
+            var rootNode = dbNodes.Nodes.Where(x => x.ParentId == null).FirstOrDefault();
+            RootNode = convertToTreeNodes(rootNode);
+            Nodes = new List<TreeViewNode>();
+            Nodes.Add(RootNode);
+        }
+        catch (Exception ex)
+        {
+            Notifier.ShowError(ex);
+        }
+    }
+
+    private TreeViewNode convertToTreeNodes(Node node)
+    {
+        var convertedNode = new TreeViewNode
+        {
+            Id = node.Id,
+            Name = node.Name,
+            ParentId = node.ParentId,
+            Children = node.Children.Select(x => convertToTreeNodes(x)).ToList()
+        };
+        return convertedNode;
+    }
+
+
+    private TreeViewNode getNodeById(string nodeId, TreeViewNode firstNodeToSearch = null)
+    {
+        if (nodeId == null)
+            return null;
+        if (firstNodeToSearch == null)
+            firstNodeToSearch = RootNode;
+
+        if (firstNodeToSearch.Id == nodeId)
+            return firstNodeToSearch;
+
+        if (firstNodeToSearch.Children?.Any() == true)
+        {
+            foreach (var child in firstNodeToSearch.Children)
+            {
+                var node = getNodeById(nodeId, child);
+                if (node != null)
+                    return node;
+            }
+        }
+        return null;
+    }
+
+    private string getNewNoteName(string parentId)
+    {
+        var parent = getNodeById(parentId);
+        if( parent == null) return "New Note 1";
+
+        if (parent.Children?.Any() != true) return "New Note 1";
+        int i = 1;
+        while (true)
+        {
+            var candidateName = "New Note" + (i == 1 ? "" : " " + i.ToString());
+            var nameExists = parent.Children.Any(x => x.Name.Equals(candidateName));
+            if (!nameExists)
+                return candidateName;
+            i++;
+        }
+    }
+
+
+}

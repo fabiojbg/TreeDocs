@@ -1,0 +1,79 @@
+﻿@implements IDisposable
+@inject ITreeViewInterop TreeViewInterop
+
+<ul id="@Id" class="ztree"></ul>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public TreeViewNode[] Nodes { get; set; }
+
+    [Parameter]
+    public EventCallback<RightNodeClickEventArgs> OnRightClick { get; set; }
+
+    [Parameter]
+    public EventCallback<BeforeNodeRenameEventArgs> OnBeforeRename { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeClickEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public EventCallback<BeforeNodeClickEventArgs> OnBeforeClick { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        TreeViewInterop.OnRightClick += onRightClick;
+        TreeViewInterop.OnBeforeRename += onBeforeRename;
+        TreeViewInterop.OnClick += onClick;
+        TreeViewInterop.OnBeforeClick += onBeforeClick;
+        await base.OnInitializedAsync();
+    }
+
+    public async Task CreateTreeViewAsync(object settings, TreeViewNode[] nodes)
+    {
+        await TreeViewInterop.CreateTreeViewAsync(Id, settings, nodes);
+    }
+
+    public async Task AddNode(string parentNodeId, string newNodeId, string nodeName)
+    {
+        await TreeViewInterop.AddNode(Id, parentNodeId, newNodeId, nodeName);
+    }
+
+    public async Task DeleteNode(string nodeId)
+    {
+        await TreeViewInterop.DeleteNode(Id, nodeId);
+    }
+
+    private async void onRightClick(RightNodeClickEventArgs args)
+    {
+        if( OnRightClick.HasDelegate)
+            await OnRightClick.InvokeAsync(args);
+    }
+
+    private async void onBeforeRename(BeforeNodeRenameEventArgs args)
+    {
+        if (OnBeforeRename.HasDelegate)
+            await OnBeforeRename.InvokeAsync(args);
+    }
+
+    private async void onClick(NodeClickEventArgs args)
+    {
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(args);
+    }
+
+    private async void onBeforeClick(BeforeNodeClickEventArgs args)
+    {
+        if (OnBeforeClick.HasDelegate)
+            await OnBeforeClick.InvokeAsync(args);
+    }
+
+    public void Dispose()
+    {
+        TreeViewInterop.OnRightClick -= onRightClick;
+        TreeViewInterop.OnBeforeRename -= onBeforeRename;
+    }
+}

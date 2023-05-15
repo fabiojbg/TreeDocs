@@ -1,0 +1,21 @@
+﻿@inherits BasePage
+@inject AppState AppState
+@inject NavigationManager NavManager
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (LoggedUser == null)
+        {
+            NavManager.NavigateTo("/Login");
+            return;
+        }
+        await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+    }
+
+}

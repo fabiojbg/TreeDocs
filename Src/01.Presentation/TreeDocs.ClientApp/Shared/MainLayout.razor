@@ -1,0 +1,69 @@
+﻿@inherits LayoutComponentBase
+@inject AppState AppState
+@inject NavigationManager NavManager
+@implements IDisposable
+
+@using Blazored.Toast.Configuration
+
+<div class="page">
+    <BlazoredToasts Position="ToastPosition.BottomRight"
+                    Timeout="10"
+                    IconType="IconType.FontAwesome"
+                    ShowProgressBar="true"
+                    SuccessClass="success-toast-override"
+                    SuccessIcon="fas fa-check-circle"
+                    ErrorIcon="fas fa-exclamation-circle"
+                    WarningIcon="fas fa-exclamation-triangle"
+                    />
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <div class="top-row px-4">
+
+            @if (AppState.AuthenticatedUser != null)
+            {
+                <UserMenu authenticatedUser="AppState.AuthenticatedUser" />
+            }
+            else
+            {
+                <button class="btn btn-primary" @onclick='()=>NavManager.NavigateTo("/Login")'>Login</button>
+            }
+        </div>
+
+        <div class="content px-4" style="height:90%">
+            @Body
+        </div>
+    </div>
+</div>
+<style>
+    .blazored-toast-container {
+        z-index: 1000;
+    }
+</style>
+@code
+{
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += UserDataChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= UserDataChanged;
+    }
+
+    void UserDataChanged()
+    {
+        if( AppState.AuthenticatedUser == null)
+            NavManager.NavigateTo("/Login");
+        this.StateHasChanged();
+    }
+
+    private void LogoutUser()
+    {
+        AppState.SetAuthenticatedUser(null);
+        NavManager.NavigateTo("/Login");
+    }
+}

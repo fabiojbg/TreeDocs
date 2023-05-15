@@ -1,0 +1,111 @@
+﻿@implements IDisposable
+@inherits Apps.Blazor.Components.AppComponentBase
+@using System.Text;
+@using Apps.Blazor.Components.Extensions;
+@using Apps.Blazor.Components.Common;
+
+@if (_show)
+{
+    <div class="alert alert-@typeClass alert-dismissable fade show" style="z-index:1000; float: right; width: @(Width??"100%");position:absolute;top:@(OffsetY)px;" role="alert">
+        @if (!String.IsNullOrEmpty(Message))
+        {
+            <span>@((MarkupString)Message)</span>
+        }
+        else
+        {
+            @ChildContent
+        }
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick="@((_)=>SetShow(false))">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (_show && DismissAfter > 0)
+{
+    <Timer @ref="timer" Enabled="true" FireOnce="true" Period="@DismissAfter" OnTick="@((_) => SetShow(false))"></Timer>
+}
+
+@code {
+    bool _show;
+    Timer timer;
+
+    [Parameter]
+    public int DismissAfter { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public string Type { get; set; }
+
+    [Parameter]
+    public int OffsetY { get; set; }
+
+    [Parameter]
+    public bool Show
+    {
+        get { return _show; }
+        set
+        {
+            SetShow(value);
+        }
+    }
+
+    [Parameter]
+    public string Width { get; set; }
+
+    [Parameter]
+    public string Tag { get; set; }
+
+    [Parameter]
+    public Action<DismissableAlert> OnHide { get; set; }
+
+    private string typeClass
+    {
+        get
+        {
+            if (Type.EqualsCI("red") || Type.EqualsCI("error"))
+                return "danger";
+            if (Type.EqualsCI("yellow") || Type.EqualsCI("warning"))
+                return "warning";
+            if (Type.EqualsCI("green") || Type.EqualsCI("success"))
+                return "success";
+            if (Type.EqualsCI("blue") || Type.EqualsCI("info"))
+                return "info";
+
+            return "info";
+        }
+    }
+
+    public void SetShow(bool show)
+    {
+        if (_show == show)
+            return;
+
+        _show = show;
+        if (_show == false)
+        {
+            OnHide?.Invoke(this);
+        }
+        StateHasChanged();
+    }
+
+    public void SetType(string type)
+    {
+        Type = type;
+    }
+
+    public void SetMesssage(string message)
+    {
+        Message = message;
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

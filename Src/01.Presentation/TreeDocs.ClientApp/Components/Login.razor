@@ -1,0 +1,70 @@
+﻿@inherits BaseAppComponent
+@page "/Login"
+@inject HttpClient Http
+@inject AppState AppState
+@inject NavigationManager NavManager
+@inject INotifier notifier
+
+@using Auth.Domain.RequestsResponses
+
+<h3>Login</h3>
+<div class="col-xl-7 col-lg-8 col-md-10 col-sm-12" id="form">
+    <SfSpinner @ref="Spinner" Type="SpinnerType.Material">
+    </SfSpinner>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="text" class="form-control" id="email" name="email" @bind-value="@AuthenticateRequest.UserEmail" />
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" class="form-control" id="password" name="password" @bind-value="@AuthenticateRequest.Password" />
+    </div>
+    <br />
+    <div class="form-group">
+        <button class="btn btn-primary" @onclick="LoginUser">Login</button>
+    </div>
+    <div class="form-group">
+        <label for="register">Does not have an account?</label>
+        <button class="btn btn-secondary" id="register" @onclick='()=> NavManager.NavigateTo("/Register")'>Register</button>
+    </div>
+</div>
+@code {
+    AuthenticateUserRequest AuthenticateRequest = new AuthenticateUserRequest();
+
+    private async Task LoginUser()
+    {
+        try
+        {
+            if (notifier.ShowIfHasError(AuthenticateRequest))
+                return;
+            await Spinner.ShowAsync();
+            //HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44370/api/user/login");
+            //request.SetBrowserRequestMode(BrowserRequestMode.NoCors);
+            //request.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(AuthenticateRequest), System.Text.Encoding.UTF8, "application/json");
+            //request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+            //var response = await Http.SendAsync(request);
+            var response = await Http.PostAsJsonAsync( $"{ServerUrl}/api/user/login", AuthenticateRequest);
+            if (response.IsSuccessStatusCode)
+            {
+                var authenticatedUser = await response.Content.ReadJsonAsync<AuthenticatedUser>();
+                AppState.SetAuthenticatedUser(authenticatedUser);
+                NavManager.NavigateTo("/");
+            }
+            else
+            {
+                var requestResult = await response.Content.ReadJsonAsync<RequestResult>();
+                if (notifier.ShowIfHasError(requestResult))
+                    return;
+            }
+        }
+        catch (Exception ex)
+        {
+            notifier.ShowError(ex);
+        }
+        finally
+        {
+            await Spinner.HideAsync();
+        }
+    }
+
+}

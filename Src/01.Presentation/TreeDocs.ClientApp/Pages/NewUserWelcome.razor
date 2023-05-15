@@ -1,0 +1,22 @@
+﻿@inherits BaseLoggedPage
+@page "/NewUserWelcome"
+
+@inject NavigationManager NavManager
+@inject INotifier notifier
+
+@using Auth.Domain.RequestsResponses
+
+
+<h3>Seja bem vindo @LoggedUser?.Username . Seu usuário foi criado!</h3>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (LoggedUser == null)
+            NavManager.NavigateTo("/Login");
+    }
+
+
+}

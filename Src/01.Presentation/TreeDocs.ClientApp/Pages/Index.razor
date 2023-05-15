@@ -1,0 +1,16 @@
+﻿@inherits BaseLoggedPage
+@page "/"
+
+@inject NavigationManager NavManager
+
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (LoggedUser != null)
+            NavManager.NavigateTo("/UserNotes");
+
+    }
+}

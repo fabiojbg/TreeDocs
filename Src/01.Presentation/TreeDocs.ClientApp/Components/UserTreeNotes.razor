@@ -1,0 +1,231 @@
+﻿@inherits BaseLoggedAppComponent
+@page "/UserTreeNotes"
+@inject HttpClient Http;
+@using TreeDocs.Domain.RequestsResponses
+@using Apps.Blazor.Components.Navigation;
+
+<div>
+    <SfSpinner @ref="Spinner" Type="SpinnerType.Material">
+    </SfSpinner>
+
+    <SfContextMenu @ref="contextMenu" TValue="MenuItem">
+        <MenuItems>
+            <MenuItem Id="addNote" Text="Adiciona Nota" Hidden="@addNoteHidden"></MenuItem>
+            <MenuItem Id="delNote" Text="Remove Nota" Hidden="@delNoteHidden"></MenuItem>
+        </MenuItems>
+        <MenuEvents TValue="MenuItem" ItemSelected="@SelectedHandler"></MenuEvents>
+    </SfContextMenu>
+</div>
+<TreeView @ref="@treeView" Id="UserNotesTree" OnRightClick="onRightClick"
+          OnBeforeRename="onBeforeRename"
+          OnClick="@OnClick"
+          OnBeforeClick="@OnBeforeClick">
+</TreeView>
+
+@code {
+
+    TreeViewNode RootNode;
+    TreeView treeView;
+    SfContextMenu<MenuItem> contextMenu;
+    bool addNoteHidden, delNoteHidden;
+    TreeViewNode selectedNode;
+
+    [Parameter]
+    public EventCallback<Apps.Blazor.Components.Navigation.NodeClickEventArgs> OnClick { get; set; }
+    [Parameter]
+    public EventCallback<BeforeNodeClickEventArgs> OnBeforeClick { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private void onRightClick(RightNodeClickEventArgs args)
+    {
+        selectedNode = getNodeById(args.TreeNode.Id);
+        delNoteHidden = args.TreeNode.Id == "0";
+
+        contextMenu.Open(args.X, args.Y);
+    }
+
+    private async Task onBeforeRename(BeforeNodeRenameEventArgs args)
+    {
+        selectedNode = getNodeById(args.TreeNode.Id);
+        if (selectedNode == null || selectedNode.name.Equals(args.NewName)) return;
+        var success = await updateNodeName(selectedNode, args.NewName);
+        if (success)
+        {
+            selectedNode.name = args.NewName;
+        }
+        args.Cancel = !success;
+    }
+
+    private async Task SelectedHandler(MenuEventArgs<MenuItem> e)
+    {
+        if (selectedNode == null) return;
+        if (e.Item.Id == "addNote")
+        {
+            var newName = "New Note";
+            var parentId = selectedNode.id;
+            var nodeId = await createNodeOnServer(selectedNode.id, newName);
+            if (nodeId != null)
+            {
+                var parentNode = selectedNode;
+                parentNode.children.Add(new TreeViewNode { id = nodeId, name = newName, parentId = parentId, open = true });
+
+                await treeView.AddNode(selectedNode.id, nodeId, "new Note");
+            }
+        }
+        else
+        if (e.Item.Id == "delNote")
+        {
+            if (await deleteNodeOnServer(selectedNode.id))
+            {
+                await treeView.DeleteNode(selectedNode.id);
+                Notifier.ShowSucess("Nota removida com sucesso.");
+            }
+        }
+    }
+
+    protected async Task<string> createNodeOnServer(string parentId, string nodeName)
+    {
+        if (parentId == "0") parentId = null;
+        var createdNodeRequest = new CreateNodeRequest { ParentId = parentId, Name = nodeName, NodeType = Domain.Enums.NodeType.Document, Contents = null };
+
+        var newNode = await ExecPostRequest<CreateNodeResponse>($"{ServerUrl}/api/v1/nodes", createdNodeRequest);
+
+        return newNode?.Id;
+    }
+
+
+    protected async Task<bool> updateNodeName(TreeViewNode node, string newName)
+    {
+        var parentId = node.parentId;
+        if (parentId == "0") parentId = null;
+        var updateNodeRequest = new UpdateUserNodeDataRequest { NodeId = node.id, ParentId = parentId, Name = newName };
+
+        var response = await ExecPutRequest<UpdateUserNodeDataResponse>($"{ServerUrl}/api/v1/nodes", updateNodeRequest);
+
+        return response != null;
+    }
+
+
+    protected async Task<bool> deleteNodeOnServer(string nodeId)
+    {
+        var deleteNodeRequest = new DeleteNodeRequest { NodeId = nodeId };
+
+        await ExecDeleteRequest<DeleteNodeResponse>($"{ServerUrl}/api/v1/nodes/{nodeId}", deleteNodeRequest);
+
+        return true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            List<TreeViewNode> userNodes = new List<TreeViewNode>();
+            try
+            {
+                var dbNodes = await ExecGetRequest<GetUserNodesResponse>($"{ServerUrl}/api/v1/nodes");
+                if (dbNodes == null)
+                    return;
+                RootNode = ConvertToTreeNodes(dbNodes.Nodes.FirstOrDefault());
+                if (RootNode == null)
+                {
+                    RootNode = new TreeViewNode()
+                    {
+                        id="0",
+                        name = "Fail to Load"
+                    };
+                }
+                userNodes.Add(RootNode);
+            }
+            catch (Exception ex)
+            {
+                Notifier.ShowError(ex);
+            }
+            finally
+            {
+                await Spinner.HideAsync();
+            }
+
+            var settings = new { edit = new { enable = true, showRemoveBtn = false } };
+            await treeView.CreateTreeViewAsync(settings, userNodes.ToArray());
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    //private TreeViewNode ConvertToTreeNodes(TreeViewNode rootNode, IEnumerable<Node> nodes)
+    //{
+    //    var nodesTree = new List<TreeViewNode>();
+    //    if (rootNode == null)
+    //    {
+    //        rootNode = new TreeViewNode
+    //        {
+    //            id = null,
+    //            open = true,
+    //            name = "Notes",
+    //        };
+    //    }
+    //    var children = nodes.Where(x => x.ParentId == rootNode.id)
+    //                             .Select(y => new TreeViewNode() { id = y.Id, name = y.Name, open = true, parentId = rootNode.id })
+    //                             .ToList();
+
+    //    rootNode.children = children.Any() ? children : null;
+    //    if (rootNode.children != null)
+    //    {
+    //        foreach (var child in rootNode.children)
+    //            ConvertToTreeNodes(child, nodes);
+    //    }
+    //    if (rootNode.id == null)
+    //        return rootNode;
+
+    //    return null;
+    //}
+
+    private TreeViewNode ConvertToTreeNodes(Node node)
+    {
+        if (node == null) return null;
+
+        var parentNode = new TreeViewNode
+        {
+            id = node.Id,
+            name = node.Name,
+            children = new List<TreeViewNode>()
+        };
+
+        if (node.Children.Any())
+        {
+            foreach (var child in node.Children)
+                parentNode.children.Add( ConvertToTreeNodes(child) );
+        }
+        parentNode.open = parentNode.children.Any();
+        if (!parentNode.open)
+            parentNode.children = null;
+
+        return parentNode;
+    }
+
+    private TreeViewNode getNodeById(string nodeId, TreeViewNode firstNodeToSearch = null)
+    {
+        if (firstNodeToSearch == null)
+            firstNodeToSearch = RootNode;
+
+        if (firstNodeToSearch.id == nodeId)
+            return firstNodeToSearch;
+        if (firstNodeToSearch.children != null)
+        {
+            foreach (var child in firstNodeToSearch.children)
+            {
+                var node = getNodeById(nodeId, child);
+                if (node != null)
+                    return node;
+            }
+        }
+        return null;
+    }
+
+
+}

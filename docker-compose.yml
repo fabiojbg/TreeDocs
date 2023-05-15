@@ -1,0 +1,53 @@
+version: '3.4'
+
+services:
+  treedocs_service:
+    image: ${DOCKER_REGISTRY-}treedocsservice
+    build:
+      context: .
+      dockerfile: Dockerfile_TreeDocsService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5100
+    depends_on:
+      - redis
+      - mongodb
+      - seq
+    ports:
+      - "5100:5100"
+    restart: unless-stopped    
+
+
+  treedocs_clientapp:
+    image: ${DOCKER_REGISTRY-}treedocsclientapp
+    build:
+      context: .
+      dockerfile: Dockerfile_TreeDocsClientApp
+    depends_on:
+      - treedocs_service
+    ports:
+      - "5555:80"
+    restart: unless-stopped    
+
+
+  redis:
+    image: "redis"
+    ports:
+      - "63800:6379"
+    restart: unless-stopped    
+
+
+  mongodb:
+    image: "mongo"
+    ports:
+      - "27018:27017"
+    restart: unless-stopped    
+
+  seq:
+    image: "datalust/seq"
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5342:80"
+    restart: unless-stopped
+      

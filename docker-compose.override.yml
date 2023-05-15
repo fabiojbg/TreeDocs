@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  treedocs_service:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5100
+    ports:
+      - "5100:5100"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  
+  treedocs_clientapp:
+    ports:
+      - "5555:80"
+
+  mongodb:
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=12345678a
+    volumes:
+      - G:/Database/TreeNotes/db:/data/db
+      - G:/Database/TreeNotes/configdb:/data/configdb
+     

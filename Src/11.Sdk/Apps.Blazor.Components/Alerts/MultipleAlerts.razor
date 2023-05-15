@@ -1,0 +1,139 @@
+﻿@implements IDisposable
+@{
+var count = 0;
+}
+@foreach (var alert in alerts)
+{
+    var offsetY = count * this.AlertOffset;
+    <DismissableAlert Show="true" Message="@alert.message"
+                      Type="@alert.type" Width="@Width" OnHide="OnHide" OffsetY="@offsetY" Tag="@alert.position.ToString()" 
+                      OnRendered="@OnAlertCreated" @ref="alert.alert"/>
+    count++;
+}
+
+@code {
+
+    [Parameter]
+    public double DismissAfter { get; set; }
+
+    [Parameter]
+    public int AlertOffset { get; set; }
+
+    [Parameter]
+    public string Width { get; set; }
+
+    List<alertItem> alerts;
+
+    static int position;
+    static object lockPosition = new object();
+
+    protected override void OnInitialized()
+    {
+        alerts = new List<alertItem>();
+        base.OnInitialized();
+    }
+
+    System.Threading.Timer _timer;
+
+    public void AddAlert(string message, string type)
+    {
+        var newAlert = new alertItem
+        {
+            message = message + "-" + position + "-" + DateTime.Now.AddSeconds(DismissAfter),
+            type = type,
+            position = position,
+            dismiss = DateTime.Now.AddSeconds(DismissAfter)
+        };
+        alerts.Add(newAlert);
+        position++;
+        this.StateHasChanged();
+        if (alerts.Any() && _timer == null)
+        {
+            _timer = new System.Threading.Timer(
+                            callback: (_) => OnTimeTick(),
+                            state: null,
+                            dueTime: TimeSpan.FromSeconds(1),
+                            period: TimeSpan.FromSeconds(1));
+
+        }
+    }
+
+    DismissableAlert Test
+    {
+        set
+        {
+            var alert = alerts.FirstOrDefault(x => x.position.ToString() == value.Tag);
+            if (alert != null)
+                alert.alert = value;
+        }
+    }
+
+    public void OnAlertCreated(object instance)
+    {
+        var dismissableAlert = instance as DismissableAlert;
+        var alert = alerts.FirstOrDefault(x => x.position.ToString() == dismissableAlert.Tag);
+        if (alert != null)
+            alert.alert = dismissableAlert;
+    }
+
+    static bool _onTick;
+    protected void OnTimeTick()
+    {
+        if (_onTick) return;
+        _onTick = true;
+        try
+        {
+            List<alertItem> alertsToDismiss = new List<alertItem>();
+            foreach (var alert in alerts)
+            {
+                alert.alertDiff = alert.dismiss - DateTime.Now;
+                if (alert.alertDiff.TotalMilliseconds < 0)
+                    alertsToDismiss.Add(alert);
+            }
+            alertsToDismiss.All(x => { x.alert.SetShow(false); return true; });
+        }
+        finally
+        {
+            _onTick = false;
+        }
+    }
+
+    public void OnHide(DismissableAlert alert)
+    {
+        var alertsBefore = alerts.Count();
+        alerts = alerts.Where(x => x.position.ToString() != alert.Tag).ToList();
+        var alertsAfter = alerts.Count();
+
+        if (alertsAfter != alertsBefore)
+            this.StateHasChanged();
+
+        if (!alerts.Any())
+        {
+            _timer?.Dispose();
+            _timer = null;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (AlertOffset == 0)
+            AlertOffset = 55;
+        base.OnParametersSet();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _timer = null;
+    }
+
+    class alertItem
+    {
+        public string message;
+        public string type;
+        public int position;
+        public DateTime dismiss;
+        public DismissableAlert alert;
+        public TimeSpan alertDiff;
+    }
+}

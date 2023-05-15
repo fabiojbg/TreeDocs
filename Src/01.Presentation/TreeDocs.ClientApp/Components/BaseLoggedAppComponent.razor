@@ -1,0 +1,15 @@
+﻿@inherits BaseAppComponent
+@inject NavigationManager NavManager
+@inject AppState AppState
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (base.LoggedUser == null)
+            NavManager.NavigateTo("/Login");
+    }
+
+
+}

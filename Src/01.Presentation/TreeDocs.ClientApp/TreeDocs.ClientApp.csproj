@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+	<PropertyGroup>
+	    <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+
+	<PropertyGroup Label="Globals">
+		<SccProjectName>SAK</SccProjectName>
+		<SccProvider>SAK</SccProvider>
+		<SccAuxPath>SAK</SccAuxPath>
+		<SccLocalPath>SAK</SccLocalPath>
+		<UserSecretsId>ee945069-47af-464a-a05d-6041ef113603</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..</DockerfileContext>
+		<DockerComposeProjectPath>..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+        <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
+        <PackageReference Include="Blazored.TextEditor" Version="1.0.3" />
+        <PackageReference Include="Blazored.Toast" Version="3.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
+	    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
+	    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+	    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Syncfusion.Blazor" Version="19.1.0.63" />
+        <PackageReference Include="Syncfusion.Licensing" Version="19.1.0.63" />
+        <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\03.Domain\TreeDocs.Domain.RequestResponses\TreeDocs.Domain.RequestResponses.csproj" />
+    <ProjectReference Include="..\..\06.Authorization\Auth.Domain.RequestsResponses\Auth.Domain.RequestsResponses.csproj" />
+    <ProjectReference Include="..\..\10.Common\TreeDocs.Service.Contracts\TreeDocs.Service.Contracts.csproj" />
+    <ProjectReference Include="..\..\11.Sdk\Apps.Blazor.Components\Apps.Blazor.Components.csproj" />
+    <ProjectReference Include="..\..\11.Sdk\Apps.Sdk.Util\Apps.Sdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
+  </ItemGroup>
+
+</Project>
