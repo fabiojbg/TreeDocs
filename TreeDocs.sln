@@ -55,6 +55,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TreeDocs.Domain.RequestResp
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{72AFF7D8-863C-4CD7-9D49-556C4E7EEC85}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B01E1F60-A265-4133-93F5-F6398C89B27D}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -158,79 +164,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9896D077-FDC4-4E14-BFCE-1AE89D6A17A3}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 18
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://fbotelho.visualstudio.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Src\\01.Presentation\\TreeDocs.Service\\TreeDocs.Service.csproj
-		SccProjectTopLevelParentUniqueName1 = TreeDocs.sln
-		SccProjectName1 = Src/01.Presentation/TreeDocs.Service
-		SccLocalPath1 = Src\\01.Presentation\\TreeDocs.Service
-		SccProjectUniqueName2 = Src\\01.Presentation\\TreeDocs.ClientApp\\TreeDocs.ClientApp.csproj
-		SccProjectTopLevelParentUniqueName2 = TreeDocs.sln
-		SccProjectName2 = Src/01.Presentation/TreeDocs.ClientApp
-		SccLocalPath2 = Src\\01.Presentation\\TreeDocs.ClientApp
-		SccProjectUniqueName3 = Src\\02.Application\\Application\\Application.csproj
-		SccProjectTopLevelParentUniqueName3 = TreeDocs.sln
-		SccProjectName3 = Src/02.Application/Application
-		SccLocalPath3 = Src\\02.Application\\Application
-		SccProjectUniqueName4 = Src\\11.Sdk\\Apps.Blazor.Components\\Apps.Blazor.Components.csproj
-		SccProjectTopLevelParentUniqueName4 = TreeDocs.sln
-		SccProjectName4 = Src/11.Sdk/Apps.Blazor.Components
-		SccLocalPath4 = Src\\11.Sdk\\Apps.Blazor.Components
-		SccProjectUniqueName5 = Src\\04.Persistence\\MongoDb\\Database.MongoDb\\Repository.MongoDb.csproj
-		SccProjectTopLevelParentUniqueName5 = TreeDocs.sln
-		SccProjectName5 = Src/04.Persistence/MongoDb/Database.MongoDb
-		SccLocalPath5 = Src\\04.Persistence\\MongoDb\\Database.MongoDb
-		SccProjectUniqueName6 = Src\\03.Domain\\Domain\\TreeDocs.Domain.csproj
-		SccProjectTopLevelParentUniqueName6 = TreeDocs.sln
-		SccProjectName6 = Src/03.Domain/Domain
-		SccLocalPath6 = Src\\03.Domain\\Domain
-		SccProjectUniqueName7 = Src\\10.Common\\TreeDocs.Service.Contracts\\TreeDocs.Service.Contracts.csproj
-		SccProjectTopLevelParentUniqueName7 = TreeDocs.sln
-		SccProjectName7 = Src/10.Common/TreeDocs.Service.Contracts
-		SccLocalPath7 = Src\\10.Common\\TreeDocs.Service.Contracts
-		SccProjectUniqueName8 = Src\\06.Authorization\\TreeDocs.AuthDomain.Persistence.MongoDb\\AuthDomain.Persistence.MongoDb.csproj
-		SccProjectTopLevelParentUniqueName8 = TreeDocs.sln
-		SccProjectName8 = Src/06.Authorization/TreeDocs.AuthDomain.Persistence.MongoDb
-		SccLocalPath8 = Src\\06.Authorization\\TreeDocs.AuthDomain.Persistence.MongoDb
-		SccProjectUniqueName9 = Src\\03.Domain\\Shared\\TreeDocs.Shared\\Domain.Shared.csproj
-		SccProjectTopLevelParentUniqueName9 = TreeDocs.sln
-		SccProjectName9 = Src/03.Domain/Shared/TreeDocs.Shared
-		SccLocalPath9 = Src\\03.Domain\\Shared\\TreeDocs.Shared
-		SccProjectUniqueName10 = Src\\99.Tests\\AuthDomain.Tests\\AuthDomain.Tests.csproj
-		SccProjectTopLevelParentUniqueName10 = TreeDocs.sln
-		SccProjectName10 = Src/99.Tests/AuthDomain.Tests
-		SccLocalPath10 = Src\\99.Tests\\AuthDomain.Tests
-		SccProjectUniqueName11 = Src\\06.Authorization\\TreeDocs.AuthDomain\\Auth.Domain.csproj
-		SccProjectTopLevelParentUniqueName11 = TreeDocs.sln
-		SccProjectName11 = Src/06.Authorization/TreeDocs.AuthDomain
-		SccLocalPath11 = Src\\06.Authorization\\TreeDocs.AuthDomain
-		SccProjectUniqueName12 = Src\\01.Presentation\\TreeDocs.Auth\\TreeDocs.Auth.csproj
-		SccProjectTopLevelParentUniqueName12 = TreeDocs.sln
-		SccProjectName12 = Src/01.Presentation/TreeDocs.Auth
-		SccLocalPath12 = Src\\01.Presentation\\TreeDocs.Auth
-		SccProjectUniqueName13 = Src\\11.Sdk\\Apps.Sdk\\Apps.Sdk.Web.csproj
-		SccProjectTopLevelParentUniqueName13 = TreeDocs.sln
-		SccProjectName13 = Src/11.Sdk/Apps.Sdk
-		SccLocalPath13 = Src\\11.Sdk\\Apps.Sdk
-		SccProjectUniqueName14 = Src\\11.Sdk\\Apps.Sdk.Util\\Apps.Sdk.csproj
-		SccProjectTopLevelParentUniqueName14 = TreeDocs.sln
-		SccProjectName14 = Src/11.Sdk/Apps.Sdk.Util
-		SccLocalPath14 = Src\\11.Sdk\\Apps.Sdk.Util
-		SccProjectUniqueName15 = Src\\11.Sdk\\Apps.Sdk.DependencyInjection\\Apps.Sdk.DependencyInjection.csproj
-		SccProjectTopLevelParentUniqueName15 = TreeDocs.sln
-		SccProjectName15 = Src/11.Sdk/Apps.Sdk.DependencyInjection
-		SccLocalPath15 = Src\\11.Sdk\\Apps.Sdk.DependencyInjection
-		SccProjectUniqueName16 = Src\\06.Authorization\\Auth.Domain.RequestsResponses\\Auth.Domain.RequestsResponses.csproj
-		SccProjectTopLevelParentUniqueName16 = TreeDocs.sln
-		SccProjectName16 = Src/06.Authorization/Auth.Domain.RequestsResponses
-		SccLocalPath16 = Src\\06.Authorization\\Auth.Domain.RequestsResponses
-		SccProjectUniqueName17 = Src\\03.Domain\\TreeDocs.Domain.RequestResponses\\TreeDocs.Domain.RequestResponses.csproj
-		SccProjectTopLevelParentUniqueName17 = TreeDocs.sln
-		SccProjectName17 = Src/03.Domain/TreeDocs.Domain.RequestResponses
-		SccLocalPath17 = Src\\03.Domain\\TreeDocs.Domain.RequestResponses
 	EndGlobalSection
 EndGlobal
