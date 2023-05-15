@@ -21,7 +21,7 @@ namespace TreeDocs.ClientApp
         public static async Task Main(string[] args)
         {
             // register syncfusion licence 19.1.0.63
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NDU4NjQ0QDMxMzkyZTMxMmUzMGFXTWF5L0E4U3B2L3lEZkhrMFVoR3hXUVRWVkJZMlZpQXViWUhVZTc4Mm89");
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Your SyncFusion License Here");
 
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
