@@ -4,7 +4,7 @@ It is not a finished project. I'm mainly a back-end developer so the back-end co
 
 An running sample can be seen in this link https://notes.botelho.cc/. (Note: All changes made to this repository is reset every hour)
 
-This project is good to learn the folowing technologies:
+This project is good to learn the following technologies:
 
 - Clean Architecture
 - Domain Driven Design (DDD)
