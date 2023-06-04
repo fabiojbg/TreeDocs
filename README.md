@@ -17,9 +17,8 @@ This project is good to learn the following technologies:
 
 ![alt text](./Images/Sample.png)
 
-# Getting Started
-In progress...
-
 # Build and Test
-In progress...
+The easiest way to execute this app is using the docker compose files in the project root directory. Just user **docker compose up** to build and run all project services and dependencies like mongodb, redis and seq.
+Once running, open your browser and type http://localhost:5555.
+**Note**: this app uses SyncFusion Blazor components and you'll have to set your own SyncFusion license in the program.cs file of the TreeDocs.ClientApp project to be able to render the UI.
 
