@@ -13,6 +13,7 @@ using Auth.Domain.Services;
 using Domain.Shared;
 using Auth.Domain.RequestsResponses;
 using Auth.Domain.Entities;
+using Apps.Sdk.DependencyInjection;
 
 namespace Auth.Domain.Handlers
 {
@@ -52,7 +53,9 @@ namespace Auth.Domain.Handlers
             var response = new CreateUserResponse(existingUser.Id, existingUser.Name, existingUser.Email.Address, existingUser.Roles.ToArray());
             
             await _authDb.SaveChangesAsync();
-            
+
+            SdkDI.Resolve<IAuditTrail>().InsertEntry($"User created", existingUser.Name, existingUser.Id, request.UserIP);
+
             return new RequestResult<CreateUserResponse>(response);
         }
     }

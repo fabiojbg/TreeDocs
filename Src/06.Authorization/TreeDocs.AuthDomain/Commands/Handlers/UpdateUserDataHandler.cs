@@ -12,6 +12,7 @@ using Auth.Domain.Services;
 using Domain.Shared;
 using Auth.Domain.Entities;
 using Auth.Domain.RequestsResponses;
+using Apps.Sdk.DependencyInjection;
 
 namespace Auth.Domain.Handlers
 {
@@ -39,7 +40,10 @@ namespace Auth.Domain.Handlers
             if (existingUser == null)
                 return new RequestResult<UpdateUserDataResponse>(Resource.ErrUserNotFound.Format(request.UserId), RequestResultType.ObjectNotFound);
 
-            if( !request.Email.EqualsIgnoreCase(existingUser.Email.Address) )
+            if (existingUser.Email.Address == "demouser@gmail.com")
+                return new RequestResult<UpdateUserDataResponse>("This user cannot be modified");
+
+            if ( !request.Email.EqualsIgnoreCase(existingUser.Email.Address) )
             {
                 var userByEmail = await _authDb.Users.GetUserByEmail(request.Email);
                 if (userByEmail != null && !userByEmail.Id.EqualsIgnoreCase(request.UserId))
@@ -65,6 +69,9 @@ namespace Auth.Domain.Handlers
             var response = new UpdateUserDataResponse(userSaved.Id, userSaved.Name, userSaved.Email.Address, userSaved.Roles.ToArray());
 
             await _authDb.SaveChangesAsync();
+
+            SdkDI.Resolve<IAuditTrail>().InsertEntry("User data changed", userSaved.Name, userSaved.Id, request.UserIP, 
+                $"Name: {userSaved.Name}\r\nEmail: {userSaved.Email}");
 
             return new RequestResult<UpdateUserDataResponse>(response);
         }

@@ -63,7 +63,9 @@
 
                 AppState.SetAuthenticatedUser(userData);
 
-                Notifier.ShowSucess("Dados atualizados com sucesso");
+                Notifier.ShowSucess("User data updated successfully");
+
+                NavManager.NavigateTo("/UserNotes");
             }
             else
             {
@@ -85,7 +87,7 @@
 
     private void Cancel()
     {
-        NavManager.NavigateTo("/Login");
+        NavManager.NavigateTo("/UserNotes");
     }
 
 }

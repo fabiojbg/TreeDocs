@@ -12,6 +12,7 @@ using Auth.Domain.Services;
 using Domain.Shared;
 using Auth.Domain.Entities;
 using Auth.Domain.RequestsResponses;
+using Apps.Sdk.DependencyInjection;
 
 namespace Auth.Domain.Handlers
 {
@@ -38,6 +39,9 @@ namespace Auth.Domain.Handlers
             if (user == null)
                 return new RequestResult<UpdateUserPasswordResponse>(Resource.ErrUserNotFound.Format(request.UserId), RequestResultType.ObjectNotFound);
 
+            if( user.Email.Address == "demouser@gmail.com")
+                return new RequestResult<UpdateUserPasswordResponse>("This user cannot be modified");
+
             if (_loggedUserService.LoggedUser?.Id == user.Id)
             {
                 user.ClearNotifications();
@@ -60,6 +64,8 @@ namespace Auth.Domain.Handlers
             var response = new UpdateUserPasswordResponse();
 
             await _authDb.SaveChangesAsync();
+
+            SdkDI.Resolve<IAuditTrail>().InsertEntry("User password changed", user.Name, user.Id, request.UserIP);
 
             return new RequestResult<UpdateUserPasswordResponse>(response);
         }

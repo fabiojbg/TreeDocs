@@ -43,7 +43,7 @@ namespace TreeDocs.ClientApp.Services
                 }
                 else
                 {
-                    _toastService.ShowError("Requisição inválida");
+                    _toastService.ShowError("Invalid request");
                 }
                 return true;
             }
@@ -84,11 +84,11 @@ namespace TreeDocs.ClientApp.Services
                 if( requestResult != null)
                     return ShowIfHasError(requestResult);
                 else
-                    _toastService.ShowError($"Erro de Comunicação (HttpStatus={httpResponse.StatusCode})");
+                    _toastService.ShowError($"Comunication error (HttpStatus={httpResponse.StatusCode})");
             }
             catch (Exception ex)
             {
-                _toastService.ShowError($"Erro de Comunicação (HttpStatus={httpResponse.StatusCode}):{ex.Message}");
+                _toastService.ShowError($"Comunication error (HttpStatus={httpResponse.StatusCode}):{ex.Message}");
             }
             return true;
         }

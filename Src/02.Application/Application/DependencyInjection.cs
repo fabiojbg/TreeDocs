@@ -24,6 +24,8 @@ namespace Application
             Auth.Domain.Persistence.MongoDb.DependencyInjection.RegisterRepositories(builder, config);
             TreeDocs.Repository.MongoDb.DependencyInjection.RegisterRepositories(builder, config);
             TreeDocs.Domain.DependencyInjection.RegisterDependencies(builder, config);
+
+            Audit.Persistence.MongoDb.DependencyInjection.RegisterDependencies(builder, config);
         }
 
         public static IServiceCollection AddApplication(this IServiceCollection services)

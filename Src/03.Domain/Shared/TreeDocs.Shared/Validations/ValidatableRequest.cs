@@ -8,5 +8,7 @@ namespace Domain.Shared
     public abstract class ValidatableRequest : Notifiable, IValidatable
     {
         public abstract bool Validate();
+
+        public string UserIP { get; set; } = null;
     }
 }

@@ -13,6 +13,7 @@ using Auth.Domain.Repository;
 using Domain.Shared;
 using Auth.Domain.RequestsResponses;
 using System.Linq;
+using Apps.Sdk.DependencyInjection;
 
 namespace Auth.Domain.Handlers
 {
@@ -45,6 +46,8 @@ namespace Auth.Domain.Handlers
             var response = new AuthenticateUserResponse(user.Id, user.Name, user.Email.Address, user.Roles);
 
             await _authDb.SaveChangesAsync();
+
+            SdkDI.Resolve<IAuditTrail>()?.InsertEntry($"User logged", user.Name, user.Id, request.UserIP);
 
             return new RequestResult<AuthenticateUserResponse>(response);
         }
