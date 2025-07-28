@@ -241,3 +241,7 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+
+#node
+node_modules/

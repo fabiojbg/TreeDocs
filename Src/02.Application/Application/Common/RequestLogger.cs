@@ -1,32 +1,41 @@
-﻿using System.Threading;
+﻿using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using Auth.Domain.Services;
 using Domain.Shared;
-using MediatR.Pipeline;
-using Microsoft.Extensions.Logging;
 
-namespace Application.Common
+namespace Application.Common.Behaviours
 {
-    public class RequestLogger<TRequest> : IRequestPreProcessor<TRequest>
+    public class RequestLoggerBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     {
-        private readonly ILogger _logger;
-        private readonly IAppUserService _appUserService;
+        private readonly Stopwatch _timer;
+        private readonly ILogger<TRequest> _logger;
+        private readonly IAppUserService _currentUserService;
 
-        public RequestLogger(ILogger<TRequest> logger, IAppUserService currentUserService)
+        public RequestLoggerBehaviour(ILogger<TRequest> logger, IAppUserService currentUserService)
         {
+            _timer = new Stopwatch();
+
             _logger = logger;
-            _appUserService = currentUserService;
+            _currentUserService = currentUserService;
         }
 
-        public Task Process(TRequest request, CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            var name = typeof(TRequest).Name;
+            var response = await next();
 
-            _logger.LogInformation("App Request: {Name} {@UserName} {@Request}", 
-                name, _appUserService.GetLoggedUserName(), request);
+            try
+            {
+                var name = typeof(TRequest).Name;
 
-            return Task.CompletedTask;
+                _logger.LogWarning("Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                    name, _timer.ElapsedMilliseconds, _currentUserService.GetLoggedUserId(), request);
+            }
+            catch { }
+
+            return response;
         }
     }
-
 }

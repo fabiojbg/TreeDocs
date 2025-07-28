@@ -4,6 +4,6 @@ namespace TreeDocs.Domain.RequestsResponses
 {
     public class UpdateUserNodeDataResponse
     {
-        public Node Node;
+        public Node Node { get; set; }
     }
 }

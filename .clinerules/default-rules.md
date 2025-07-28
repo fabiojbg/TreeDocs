@@ -7,7 +7,7 @@ At the start, the app starts with a root node. The user can add child nodes usin
 # Project Guidelines
 
 - To know how the project is structured, read the sections 'Simplified Project Folder Structure' and 'Module Responsibilities' below. You must keep these sections up to date with changes in the project.
-- The main service API is documented in file 'TreedocsServices_API.md'. Consult it to know the project APIs and create new ones.
+- The main service API is documented in file '.clinerules/TreedocsServices_API.md'. Consult it to know the project APIs and create new ones.
 - Pay attention to the MCP Tools available to use them whenever necessary
 
 # Code Style & Patterns
@@ -32,6 +32,13 @@ At the start, the app starts with a root node. The user can add child nodes usin
 The easiest way to execute this app is by using the Docker Compose files in the project´s root directory. Just use the command **"docker compose up"** to build and run all project services and dependencies, like MongoDB, Redis, and Seq.
 Once running, open your browser and type http://localhost:5555.
 
+For development of the React UI, navigate to the TreeDocs.UI directory and run:
+```bash
+npm install
+npm run dev
+```
+The React development server will be available at http://localhost:3000
+
 # Project Structure
 
 - The project is structured to separate concerns and maintain a clean architecture. 
@@ -50,7 +57,7 @@ You must mantain this structure updated in case of any change in it or in file´
 ├── TreeDocs.sln
 ├── Src/ # Source code
 │   ├── 01.Presentation/ # Presentation layer - UI and API endpoints
-│   │   ├── TreeDocs.ClientApp/ # Old Client-side web application (Blazor). A new one will be made
+│   │   ├── TreeDocs.ClientApp/ # Old Client-side web application (Blazor). Replaced by TreeDocs.UI
 │   │   │   ├── _Imports.razor
 │   │   │   ├── App.razor
 │   │   │   ├── Program.cs
@@ -63,6 +70,34 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   ├── Services/ # Client-side services for data interaction
 │   │   │   └── Shared/ # Shared UI elements and layouts
 │   │   │   └── wwwroot/ # Static assets (CSS, JS, images)
+│   │   ├── TreeDocs.UI/ # New React-based client application for hierarchical note-taking functionality
+│   │   │   ├── public/ # Static assets and main HTML entry point (index.html)
+│   │   │   ├── src/ # Application source code
+│   │   │   │   ├── components/ # Reusable UI components
+│   │   │   │   │   ├── layout/ # Layout components
+│   │   │   │   │   │   └── Header.jsx # Application header with navigation and user menu
+│   │   │   │   │   └── nodes/ # Node-specific components for tree structure
+│   │   │   │   │       ├── NodeTree.jsx # Main component for displaying hierarchical tree structure
+│   │   │   │   │       ├── NodeItem.jsx # Individual node component with context menu and selection handling
+│   │   │   │   │       └── NodeEditor.jsx # Rich text editor for creating/editing node content
+│   │   │   │   ├── pages/ # Route-based pages
+│   │   │   │   │   ├── Login.jsx # User authentication page for login credentials
+│   │   │   │   │   ├── Register.jsx # User registration page for new account creation
+│   │   │   │   │   └── Dashboard.jsx # Primary application interface containing node tree and editor
+│   │   │   │   ├── services/ # API service implementations
+│   │   │   │   │   ├── authService.js # Handles authentication API calls (login, registration, tokens)
+│   │   │   │   │   ├── nodeService.js # Manages node-related API operations (CRUD for tree nodes)
+│   │   │   │   │   └── api.js # Configures base API instance with axios and authentication interceptors
+│   │   │   │   ├── context/ # React context providers
+│   │   │   │   │   └── AuthContext.jsx # Manages authentication state and methods throughout the application
+│   │   │   │   ├── styles/ # Global CSS and Tailwind configuration
+│   │   │   │   ├── App.jsx # Main application component with routing and layout
+│   │   │   │   └── main.jsx # Application entry point initializing React and context
+│   │   │   ├── package.json # Project dependencies, npm scripts, and configuration
+│   │   │   ├── postcss.config.js # PostCSS configuration for Tailwind CSS processing
+│   │   │   ├── README.md # UI-specific documentation and development setup
+│   │   │   ├── tailwind.config.js # Tailwind CSS theme and plugin configuration
+│   │   │   └── vite.config.js # Vite build settings and API proxy configuration
 │   │   └── TreeDocs.Service/ # Backend API service. Has no UI
 │   │       ├── appsettings.Development.json
 │   │       ├── appsettings.json
@@ -186,7 +221,8 @@ You must mantain this structure updated in case of any change in it or in file´
 # Module Responsibilities
 
 - **TreeDocs.Service**: Main backend service providing all service APIs. API-first approach, no UI.
-- **TreeDocs.ClientApp**: Client-side Blazor web application for user interaction.
+- **TreeDocs.ClientApp**: Client-side Blazor web application for user interaction. (Deprecated - will be replaced by TreeDocs.UI)
+- **TreeDocs.UI**: New React-based client application for user interaction with hierarchical note-taking functionality. Built with React, Tailwind CSS, and Vite.
 - **02.Application (Application layer)**: Orchestrates business logic, handles use cases, and coordinates between domain and persistence layers.
 - **03.Domain (Domain layer)**: Contains core business entities, aggregates, value objects, and domain services. Defines business rules and logic.
   - **TreeDocs.Domain**: Core domain models and logic.

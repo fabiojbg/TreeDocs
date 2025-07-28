@@ -72,7 +72,7 @@ namespace TreeDocs.Domain.Handlers
                     var item = children.First(y => y.Id == x);
                     node.Children.Add(item);
                     });
-
+                node.ChildrenOrder = childrenOrder;
                 result.Add(node);
             }
             return result;
