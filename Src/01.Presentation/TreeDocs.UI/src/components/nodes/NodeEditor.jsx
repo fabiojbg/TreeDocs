@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 
 export default function NodeEditor({ node, onUpdate }) {
   const [name, setName] = useState(node?.name || '')
@@ -168,10 +170,28 @@ export default function NodeEditor({ node, onUpdate }) {
       
       {/* Content Editor */}
       <div className="flex-1 overflow-hidden">
-        <textarea
+        <ReactQuill
           value={contents}
-          onChange={(e) => setContents(e.target.value)}
-          className="w-full h-full p-6 text-gray-700 border-none resize-none focus:outline-none font-mono text-sm"
+          onChange={setContents}
+          className="h-full"
+          modules={{
+            toolbar: [
+              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'indent': '-1'}, { 'indent': '+1' }],
+              [{ 'align': [] }],
+              ['link', 'image'],
+              ['clean']
+            ]
+          }}
+          formats={[
+            'header',
+            'bold', 'italic', 'underline', 'strike',
+            'list', 'bullet', 'indent',
+            'align',
+            'link', 'image'
+          ]}
           placeholder="Start writing your note here..."
         />
       </div>

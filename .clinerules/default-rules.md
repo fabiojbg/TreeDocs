@@ -1,5 +1,5 @@
 # Project Brief
-This project is a web application where users can create rich text notes in a hierarchical way (tree). 
+This project is a web application where users can create rich text or html notes in a hierarchical way (tree). 
 Every node in the tree can have notes. 
 When a node is selected, the user can see and change the rich text note of it.
 At the start, the app starts with a root node. The user can add child nodes using the context menu of each node. The context menu give options to add a child node, or remove the node and its children (upon confirmation popup)
@@ -9,6 +9,7 @@ At the start, the app starts with a root node. The user can add child nodes usin
 - To know how the project is structured, read the sections 'Simplified Project Folder Structure' and 'Module Responsibilities' below. You must keep these sections up to date with changes in the project.
 - The main service API is documented in file '.clinerules/TreedocsServices_API.md'. Consult it to know the project APIs and create new ones.
 - Pay attention to the MCP Tools available to use them whenever necessary
+- This project is being develop in a windows operating system, when emitting multiple commands in a single line to the terminal, use a semi-colon to separate them (ex: 'cd newFolder; npm run dev')
 
 # Code Style & Patterns
 
