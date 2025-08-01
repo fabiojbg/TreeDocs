@@ -1,4 +1,5 @@
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const API_BASE_URL = '/api'
 
@@ -39,7 +40,9 @@ function convertKeysToCamelCase(obj) {
   }
 
   return Object.keys(obj).reduce((acc, key) => {
-    const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
+    const camelKey = key.startsWith('_')
+      ? '_' + key.charAt(1).toLowerCase() + key.slice(2)
+      : key.charAt(0).toLowerCase() + key.slice(1);
     acc[camelKey] = convertKeysToCamelCase(obj[key]);
     return acc;
   }, {});
@@ -52,11 +55,23 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    let message = 'An unexpected error occurred.';
+    if (error.response?.data) {
+      error.response.data = convertKeysToCamelCase(error.response.data);
+      // Check for '_Message' (converted to '_message' by camelCase converter) first
+      message = error.response.data._message || 
+                error.response.data.message || 
+                message;
+    } else {
+      message = error.message;
+    }
+    
+    toast.error(message); // Display error toast
+    
     if (error.response?.status === 401) {
       if (logoutCallback) {
         logoutCallback();
       } else {
-        // Fallback if callback not set (shouldn't happen in production)
         localStorage.removeItem('authToken')
         localStorage.removeItem('userData')
         window.location.href = '/login'

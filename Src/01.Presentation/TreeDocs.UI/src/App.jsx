@@ -1,9 +1,10 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import LoginPage from './pages/Login'
-import RegisterPage from './pages/Register'
-import DashboardPage from './pages/Dashboard'
-import { AuthProvider } from './context/AuthContext'
+import { Toaster } from 'react-hot-toast'
+import LoginPage from './features/auth/pages/Login'
+import RegisterPage from './features/auth/pages/Register'
+import DashboardPage from './features/nodes/pages/Dashboard'
+import { AuthProvider } from './features/auth/context/AuthContext'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/" element={<DashboardPage />} />
           </Routes>
         </div>
+        <Toaster />
       </AuthProvider>
     </Router>
   )
