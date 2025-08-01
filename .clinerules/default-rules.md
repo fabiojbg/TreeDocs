@@ -74,23 +74,33 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   ├── TreeDocs.UI/ # New React-based client application for hierarchical note-taking functionality
 │   │   │   ├── public/ # Static assets and main HTML entry point (index.html)
 │   │   │   ├── src/ # Application source code
-│   │   │   │   ├── components/ # Reusable UI components
-│   │   │   │   │   ├── layout/ # Layout components
-│   │   │   │   │   │   └── Header.jsx # Application header with navigation and user menu
-│   │   │   │   │   └── nodes/ # Node-specific components for tree structure
-│   │   │   │   │       ├── NodeTree.jsx # Main component for displaying hierarchical tree structure
-│   │   │   │   │       ├── NodeItem.jsx # Individual node component with context menu and selection handling
-│   │   │   │   │       └── NodeEditor.jsx # Rich text editor for creating/editing node content
-│   │   │   │   ├── pages/ # Route-based pages
-│   │   │   │   │   ├── Login.jsx # User authentication page for login credentials
-│   │   │   │   │   ├── Register.jsx # User registration page for new account creation
-│   │   │   │   │   └── Dashboard.jsx # Primary application interface containing node tree and editor
-│   │   │   │   ├── services/ # API service implementations
-│   │   │   │   │   ├── authService.js # Handles authentication API calls (login, registration, tokens)
-│   │   │   │   │   ├── nodeService.js # Manages node-related API operations (CRUD for tree nodes)
+│   │   │   │   ├── components/ # Reusable UI components (general, non-feature specific)
+│   │   │   │   │   └── layout/ # Layout components
+│   │   │   │   │       └── Header.jsx # Application header with navigation and user menu
+│   │   │   │   ├── features/ # Feature-based modules
+│   │   │   │   │   ├── auth/ # Authentication related features
+│   │   │   │   │   │   ├── pages/ # Pages specific to auth
+│   │   │   │   │   │   │   ├── Login.jsx # User authentication page for login credentials
+│   │   │   │   │   │   │   └── Register.jsx # User registration page for new account creation
+│   │   │   │   │   │   ├── context/ # React context providers for authentication
+│   │   │   │   │   │   │   └── AuthContext.jsx # Manages authentication state and methods throughout the application
+│   │   │   │   │   │   └── services/ # API service implementations for authentication
+│   │   │   │   │   │       └── authService.js # Handles authentication API calls (login, registration, tokens)
+│   │   │   │   │   ├── nodes/ # Node-related features (tree, editor, management)
+│   │   │   │   │   │   ├── components/ # Reusable UI components specific to nodes
+│   │   │   │   │   │   │   ├── NodeTree.jsx # Main component for displaying hierarchical tree structure
+│   │   │   │   │   │   │   ├── NodeItem.jsx # Individual node component with context menu and selection handling
+│   │   │   │   │   │   │   └── NodeEditor.jsx # Rich text editor for creating/editing node content
+│   │   │   │   │   │   ├── pages/ # Pages specific to nodes
+│   │   │   │   │   │   │   └── Dashboard.jsx # Primary application interface containing node tree and editor
+│   │   │   │   │   │   ├── hooks/ # Custom hooks for node-related logic
+│   │   │   │   │   │   │   └── useNodeManagement.js # Centralizes and reuses stateful logic for node operations
+│   │   │   │   │   │   ├── services/ # API service implementations for nodes
+│   │   │   │   │   │   │   └── nodeService.js # Manages node-related API operations (CRUD for tree nodes)
+│   │   │   │   │   │   └── store/ # Zustand stores for global node state
+│   │   │   │   │   │       └── nodeStore.js # Manages nodes, selectedNode, loading, error states
+│   │   │   │   ├── services/ # Global API service configuration
 │   │   │   │   │   └── api.js # Configures base API instance with axios and authentication interceptors
-│   │   │   │   ├── context/ # React context providers
-│   │   │   │   │   └── AuthContext.jsx # Manages authentication state and methods throughout the application
 │   │   │   │   ├── styles/ # Global CSS and Tailwind configuration
 │   │   │   │   ├── App.jsx # Main application component with routing and layout
 │   │   │   │   └── main.jsx # Application entry point initializing React and context

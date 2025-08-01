@@ -4,7 +4,7 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
 
 ---
 
-## 12. NodesController
+## 1. NodesController
 
 **Base Route**: `/api/v1/nodes`
 
@@ -22,7 +22,7 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
 - **Contracts**:
     - **Request**: `GetUserNodesRequest`
         - `UserId` (string): The ID of the user whose nodes are to be retrieved.
-    - **Response**: `GetUserNodesResponse`
+    - **Response**: `GetUserNodesResponse` or `RequestResult` in case of errors (see [2. Error Handling Instructions](#2-error-handling-instructions))
         - `OwnerId` (string): The ID of the owner of the nodes.
         - `Nodes` (IEnumerable<Node>): A collection of Node objects without its contents
             - **Node Object**:
@@ -45,7 +45,7 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
 - **Contracts**:
     - **Request**: `GetUserNodeRequest`
         - `NodeId` (string): The ID of the specific node to retrieve.
-    - **Response**: `GetUserNodeResponse`
+    - **Response**: `GetUserNodeResponse` or `RequestResult` in case of errors (see [2. Error Handling Instructions](#2-error-handling-instructions))
         - `OwnerId` (string): The ID of the owner of the node.
         - `Node` <Node>): Node object without the Children field.
             - **Node Object**:
@@ -69,7 +69,7 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
         - `Name` (string): The name of the new node. ( 3 characters minimum, 100 characters maximum)
         - `NodeType` (NodeType enum): The type of the new node (e.g., Folder, Document).
         - `Contents` (string): (Optional) The initial rich text content for the new node.
-    - **Response**: `CreateNodeResponse`
+    - **Response**: `CreateNodeResponse` or `RequestResult` in case of errors (see [2. Error Handling Instructions](#2-error-handling-instructions))
         - `Id` (string): The ID of the newly created node.
 
 ### `PUT /api/v1/nodes`
@@ -83,7 +83,7 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
         - `Name` (string): The new name for the node. If ommited, the current name is not changed
         - `NodeContents` (string): The new rich text content for the node. If ommited, the content is not changed
         - `ChildrenOrder` (List<string>): (Optional) An ordered list of child node IDs for reordering children. If ommited, the current order is not changed. This list allowed the user to reorder the children nodes of the editing node. The children nodes of any nodes can be ordered in any form.
-    - **Response**: `UpdateUserNodeDataResponse`
+    - **Response**: `UpdateUserNodeDataResponse` or `RequestResult` in case of errors (see [2. Error Handling Instructions](#2-error-handling-instructions))
         - `Node` (Node): The updated Node object. (See Node Object definition above)
 
 ### `DELETE /api/v1/nodes/{nodeId}`
@@ -95,8 +95,45 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
 - **Contracts**:
     - **Request**: `DeleteNodeRequest`
         - `NodeId` (string): The ID of the node to delete.
-    - **Response**: `DeleteNodeResponse`
+    - **Response**: `DeleteNodeResponse` or `RequestResult` in case of errors (see [2. Error Handling Instructions](#2-error-handling-instructions))
         - (Empty, indicates successful deletion)
+
+
+## 2. Error Handling Instructions
+For all API endpoints, the following error structure is returned in case of any error. This structure is returned instead of the expected response. For ease of identification by the caller, the properties returned start with the character '_'. No API responses have properties starting with this character.
+
+```c#
+    public class RequestResult
+    {
+        public string _Message; // The main error message. Always returned.
+        public List<Notification> _Notifications; // Optional, a list of notifications or errors, useful for toast messages.
+        public RequestResultType _Result; // One of the types below.
+    }
+```
+where
+```c# 
+    public enum RequestResultType
+    { 
+        InvalidRequest = -1,
+        Unauthorized = -2,
+        ObjectNotFound = -3,
+        OperationError = -4
+    }
+
+    public class Notification
+    {
+        public string Property;
+        public string Message;
+    }
+```
+
+These structures are returned in one of these HTTP status codes:
+
+400 (BadRequest) - For an invalid request.
+401 (Unauthorized) - If the user login is invalid, a call has an invalid or missing authentication token, or the user is trying to access something they cannot.
+404 (ObjectNotFound) - For objects not found, like trying to read a nonexistent node.
+500 (InternalServerError) - An unexpected server error.
+
 
 ---
 

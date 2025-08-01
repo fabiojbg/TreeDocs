@@ -116,4 +116,40 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
         - `Token` (string): The generated JWT authentication token.
         - `TokenExpiration` (DateTime?): Token expiration date/time.
 
+## 2. Error Handling Instructions
+For all API endpoints, the following error structure is returned in case of any error. This structure is returned instead of the expected response. For ease of identification by the caller, the properties returned start with the character '_'. No API responses have properties starting with this character.
+
+```c#
+    public class RequestResult
+    {
+        public string _Message; // The main error message. Always returned.
+        public List<Notification> _Notifications; // Optional, a list of notifications or errors, useful for toast messages.
+        public RequestResultType _Result; // One of the types below.
+    }
+```
+where
+```c# 
+    public enum RequestResultType
+    { 
+        InvalidRequest = -1,
+        Unauthorized = -2,
+        ObjectNotFound = -3,
+        OperationError = -4
+    }
+
+    public class Notification
+    {
+        public string Property;
+        public string Message;
+    }
+```
+
+These structures are returned in one of these HTTP status codes:
+
+400 (BadRequest) - For an invalid request.
+401 (Unauthorized) - If the user login is invalid, a call has an invalid or missing authentication token, or the user is trying to access something they cannot.
+404 (ObjectNotFound) - For objects not found, like trying to read a nonexistent node.
+500 (InternalServerError) - An unexpected server error.
+
+
 ---
