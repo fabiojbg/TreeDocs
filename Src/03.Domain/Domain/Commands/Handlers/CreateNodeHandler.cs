@@ -47,7 +47,7 @@ namespace TreeDocs.Domain.Handlers
             }
 
             if ( Valid && await _nodeRep.GetNodeByName(_appUserService.GetLoggedUserId(), request.ParentId, request.Name)!=null)
-                AddNotification(DomainResources.ErrNodeAlreadyExists);
+                AddNotification(nameof(request.ParentId), DomainResources.ErrNodeAlreadyExists);
 
             if( Invalid )
                 return new RequestResult<CreateNodeResponse>(this.Notifications);

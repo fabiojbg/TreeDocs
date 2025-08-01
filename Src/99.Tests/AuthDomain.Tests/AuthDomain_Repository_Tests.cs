@@ -172,7 +172,7 @@ namespace Auth.Domain.Tests
         }
 
         [Theory]
-        [InlineData("Administrator2", "admin2@admin.com", "123456", Constants.ADMIN_USER_ROLE, DatabaseFixture.UserId, RequestResultType.Unnauthorized)]  // user not admin trying to create admin
+        [InlineData("Administrator2", "admin2@admin.com", "123456", Constants.ADMIN_USER_ROLE, DatabaseFixture.UserId, RequestResultType.Unauthorized)]  // user not admin trying to create admin
         [InlineData("Ad", "admin@admin.com", "123456", Constants.ADMIN_USER_ROLE, DatabaseFixture.AdminId, RequestResultType.InvalidRequest, "Name")]     // invalid name
         [InlineData("Administrator", "admin-admin.com", "123456", Constants.ADMIN_USER_ROLE, DatabaseFixture.AdminId, RequestResultType.InvalidRequest)]  //  invalid email
         [InlineData("Administrator", DatabaseFixture.AdminEmail, "123456", Constants.ADMIN_USER_ROLE, DatabaseFixture.AdminId, RequestResultType.InvalidRequest)] // user already exists
@@ -227,8 +227,8 @@ namespace Auth.Domain.Tests
         }
 
         [Theory]
-        [InlineData(DatabaseFixture.AdminEmail, "1234567", RequestResultType.Unnauthorized)] // password should be 123456
-        [InlineData("admin1234@admin.com", "123456", RequestResultType.Unnauthorized)] // user does not exist
+        [InlineData(DatabaseFixture.AdminEmail, "1234567", RequestResultType.Unauthorized)] // password should be 123456
+        [InlineData("admin1234@admin.com", "123456", RequestResultType.Unauthorized)] // user does not exist
         public async void AuthenticationUserHandler_Invalid(string userEmail, string password, RequestResultType expectedResult)
         {
             var handler = new AuthenticationUserHandler(_authDbMock.Object, _loggerMock.Object);
@@ -272,9 +272,9 @@ namespace Auth.Domain.Tests
 
 
         [Theory]
-        [InlineData(DatabaseFixture.AdminEmail, DatabaseFixture.UserId, RequestResultType.Unnauthorized)] // user tries to get admin data
-        [InlineData("user2@user.com", DatabaseFixture.UserId, RequestResultType.Unnauthorized)] // user tries to get other user data
-        [InlineData("inexisting@user.com", DatabaseFixture.UserId, RequestResultType.Unnauthorized)] // user tries to get inexisting user
+        [InlineData(DatabaseFixture.AdminEmail, DatabaseFixture.UserId, RequestResultType.Unauthorized)] // user tries to get admin data
+        [InlineData("user2@user.com", DatabaseFixture.UserId, RequestResultType.Unauthorized)] // user tries to get other user data
+        [InlineData("inexisting@user.com", DatabaseFixture.UserId, RequestResultType.Unauthorized)] // user tries to get inexisting user
         [InlineData("inexisting@user.com", DatabaseFixture.AdminId, RequestResultType.ObjectNotFound)] // admin tries to get inexisting user
         [InlineData("", DatabaseFixture.AdminId, RequestResultType.InvalidRequest)] // admin tries to get user with an invalid email
         public async void GetUserHandler_Invalid(string userEmail, string loggedUserId, RequestResultType expectedResult)
@@ -335,7 +335,7 @@ namespace Auth.Domain.Tests
         }
 
         [Theory]
-        [InlineData(DatabaseFixture.UserId, "5f9516138271a9c8c87f1eb4", "User 3", "user3@admin.com", "Admin,NewRole", RequestResultType.Unnauthorized, null)] // user tries to change another user data
+        [InlineData(DatabaseFixture.UserId, "5f9516138271a9c8c87f1eb4", "User 3", "user3@admin.com", "Admin,NewRole", RequestResultType.Unauthorized, null)] // user tries to change another user data
         [InlineData("5f9516138271a9c8c87f1eb4", "5f9516138271a9c8c87f1eb4", "User 3", "", "Admin,NewRole", RequestResultType.InvalidRequest, null)] // user tries to change to an empty email
         [InlineData("5f9515f38271a9c8c87f1eb4", "5f9515f38271a9c8c87f1eb4", "User 3", "invalid-email", "Admin,NewRole", RequestResultType.InvalidRequest, "Email")] // user tries to change to an invalid email
         public async void UpdateUserDataHandler_Invalid(string loggedUserId, 

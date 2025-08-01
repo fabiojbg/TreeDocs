@@ -33,7 +33,7 @@ namespace TreeDocs.Domain.Handlers
                 return new RequestResult<GetUserNodesResponse>(request.Notifications);
 
             if ( _userServices.LoggedUserId == null ||(request.UserId != _userServices.LoggedUserId && !_userServices.HasPrivilege(Privilege.EditAnotherUserNodes)))
-                return new RequestResult<GetUserNodesResponse>(DomainResources.ErrCannotCreateNodeInAnotherUserNode, RequestResultType.Unnauthorized);
+                return new RequestResult<GetUserNodesResponse>(DomainResources.ErrCannotCreateNodeInAnotherUserNode, RequestResultType.Unauthorized);
 
             var userNodes = await _repository.UserNodes.GetAllUserNodesWithoutContentsAsync(request.UserId);
 

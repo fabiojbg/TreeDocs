@@ -36,7 +36,7 @@ namespace TreeDocs.Domain.Commands.Handlers
                 return new RequestResult<DeleteNodeResponse>(DomainResources.ErrNodeNotFound, RequestResultType.ObjectNotFound);
 
             if (_userServices.LoggedUserId == null || dbNode.OwnerId != _userServices.LoggedUserId)
-                return new RequestResult<DeleteNodeResponse>("Access Denied", RequestResultType.Unnauthorized);
+                return new RequestResult<DeleteNodeResponse>("Access Denied", RequestResultType.Unauthorized);
 
             var nodesToDelete = new List<(string Id, string Name)>();
             var notDeletedNodes = new List<string>();

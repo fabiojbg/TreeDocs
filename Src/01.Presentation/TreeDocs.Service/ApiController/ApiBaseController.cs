@@ -48,7 +48,7 @@ namespace TreeDocs.Service.ApiController
             {
                 case RequestResultType.Success:
                     return Ok(result._Data);
-                case RequestResultType.Unnauthorized:
+                case RequestResultType.Unauthorized:
                     {
                         Logger.LogInformation("{0} : Unnauthorized. {1}", AuthenticatedUser?.Username??"-", result._Message);
                         return Unauthorized(result);

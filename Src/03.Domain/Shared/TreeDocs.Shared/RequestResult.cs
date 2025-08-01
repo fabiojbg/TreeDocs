@@ -11,7 +11,7 @@ namespace Domain.Shared
     { 
         Success = 0,
         InvalidRequest = -1,
-        Unnauthorized = -2,
+        Unauthorized = -2,
         ObjectNotFound = -3,
         OperationError = -4
     }

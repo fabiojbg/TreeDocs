@@ -37,7 +37,7 @@ namespace TreeDocs.Domain.Handlers
                 return new RequestResult<GetUserNodeResponse>(DomainResources.ErrNodeNotFound, RequestResultType.ObjectNotFound);
 
             if ( _userServices.LoggedUserId == null || (userNode.OwnerId != _userServices.LoggedUserId && !_userServices.HasPrivilege(Privilege.EditAnotherUserNodes)))
-                return new RequestResult<GetUserNodeResponse>(DomainResources.ErrCannotCreateNodeInAnotherUserNode, RequestResultType.Unnauthorized);
+                return new RequestResult<GetUserNodeResponse>(DomainResources.ErrCannotCreateNodeInAnotherUserNode, RequestResultType.Unauthorized);
 
             var children = await _repository.UserNodes.GetChildrenWithoutContentsAsync(userNode.Id);
             if( userNode.ChildrenOrder?.Any() != true)

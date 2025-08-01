@@ -50,7 +50,7 @@ namespace Auth.Domain.Handlers
             }
             else
                 if( !_loggedUserService.HasPrivilege(Privilege.UpdateUserPassword))
-                    return new RequestResult<UpdateUserPasswordResponse>(Resource.ErrNotAuthorizedOperation.Format(Privilege.UpdateUser.ToString()), RequestResultType.Unnauthorized);
+                    return new RequestResult<UpdateUserPasswordResponse>(Resource.ErrNotAuthorizedOperation.Format(Privilege.UpdateUser.ToString()), RequestResultType.Unauthorized);
 
             user.ClearNotifications();
             if( !user.SetPassword(request.NewPassword) )

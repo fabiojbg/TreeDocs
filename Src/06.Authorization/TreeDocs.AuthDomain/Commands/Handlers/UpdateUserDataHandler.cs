@@ -34,7 +34,7 @@ namespace Auth.Domain.Handlers
 
             if (!_loggedUserService.HasPrivilege(Privilege.UpdateUser) &&
                 _loggedUserService.LoggedUser?.Id != request.UserId)
-                return new RequestResult<UpdateUserDataResponse>(Resource.ErrNotAuthorizedOperation.Format(Privilege.UpdateUser.ToString()), RequestResultType.Unnauthorized);
+                return new RequestResult<UpdateUserDataResponse>(Resource.ErrNotAuthorizedOperation.Format(Privilege.UpdateUser.ToString()), RequestResultType.Unauthorized);
 
             var existingUser = await _authDb.Users.GetUserById(request.UserId);
             if (existingUser == null)

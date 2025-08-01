@@ -30,7 +30,7 @@ namespace Auth.Domain.Handlers
         {
             if (!_loggedUserService.HasPrivilege(Privilege.GetAnyUserData) &&
                 _loggedUserService.LoggedUser?.Email?.Address?.EqualsIgnoreCase(request.Email)!=true)
-                return new RequestResult<GetUserResponse>(Resource.ErrNotAuthorizedOperation.Format(Privilege.GetAnyUserData.ToString()), RequestResultType.Unnauthorized);
+                return new RequestResult<GetUserResponse>(Resource.ErrNotAuthorizedOperation.Format(Privilege.GetAnyUserData.ToString()), RequestResultType.Unauthorized);
 
             if (request.Email.IsNullOrEmpty())
                 return new RequestResult<GetUserResponse>(Resource.ErrInvalidUserEmail, RequestResultType.InvalidRequest);

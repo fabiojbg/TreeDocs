@@ -35,11 +35,8 @@ namespace TreeDocs.Domain.Commands.Handlers
             if( dbNode == null)
                 return new RequestResult<UpdateUserNodeDataResponse>(DomainResources.ErrNodeNotFound, RequestResultType.ObjectNotFound);
 
-            if(request.ParentId!=null && request.ParentId != dbNode.ParentId)
+            if(request.ParentId!=null && !request.ParentId.EqualsIgnoreCase(dbNode.ParentId) )
             {
-                if( dbNode.ParentId.EqualsCI(request.ParentId))
-                    return new RequestResult<UpdateUserNodeDataResponse>(DomainResources.ErrNodeNotFound, RequestResultType.ObjectNotFound);
-
                 var parent = await _nodeRep.GetByIdAsync(request.ParentId);
                 if (parent == null)
                     AddNotification(DomainResources.ErrFolderNotFound);
@@ -74,7 +71,7 @@ namespace TreeDocs.Domain.Commands.Handlers
 
             var existingNode = await _nodeRep.GetNodeByName(_userServices.LoggedUserId, dbNode.ParentId, dbNode.Name);
             if (Valid && existingNode?.Id != null && existingNode?.Id != dbNode.Id )
-                AddNotification(DomainResources.ErrNodeAlreadyExists);
+                AddNotification(nameof(request.ParentId), DomainResources.ErrNodeAlreadyExists);
 
             if (this.Invalid)
                 return new RequestResult<UpdateUserNodeDataResponse>(Notifications);

@@ -33,12 +33,12 @@ namespace Auth.Domain.Handlers
             var user = await _authDb.Users.GetUserByEmail(request.UserEmail.ToLowerInvariant());
 
             if( user == null)
-                return new RequestResult<AuthenticateUserResponse>(Resource.ErrUserNotFound.Format(request.UserEmail), RequestResultType.Unnauthorized);
+                return new RequestResult<AuthenticateUserResponse>(Resource.ErrUserNotFound.Format(request.UserEmail), RequestResultType.Unauthorized);
 
             if (!user.ValidatePassword(request.Password))
             {
                 _logger.LogWarning($"Invalid attemp to login with user {request.UserEmail}");
-                return new RequestResult<AuthenticateUserResponse>(Resource.ErrInvalidPassword, RequestResultType.Unnauthorized);
+                return new RequestResult<AuthenticateUserResponse>(Resource.ErrInvalidPassword, RequestResultType.Unauthorized);
             }
 
             await _authDb.Users.UpdateUserLastLogin(user.Id, DateTime.Now);

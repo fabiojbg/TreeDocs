@@ -34,7 +34,7 @@ namespace Auth.Domain.Handlers
             AddNotifications(newUser);
 
             if (newUser.HasRole(Constants.ADMIN_USER_ROLE) && !_loggedUserService.HasRole(Constants.ADMIN_USER_ROLE))
-                return new RequestResult<CreateUserResponse>(Resource.ErrOnlyAdminCanCreateAdmins, RequestResultType.Unnauthorized);
+                return new RequestResult<CreateUserResponse>(Resource.ErrOnlyAdminCanCreateAdmins, RequestResultType.Unauthorized);
 
             if (Invalid)
                 return new RequestResult<CreateUserResponse>(Notifications, Resource.ErrInvalidUserCreationRequest);
