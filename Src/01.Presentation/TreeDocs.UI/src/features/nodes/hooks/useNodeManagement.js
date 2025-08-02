@@ -1,8 +1,8 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react'; // Import useRef
 import { nodeService } from '../services/nodeService';
 import { useNodeStore } from '../store/nodeStore';
 
-export const useNodeManagement = (user) => {
+export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditorRef as a parameter
   const { nodes, selectedNode, loading, error, openNodes, setNodes, setSelectedNode, setLoading, setError, addNode, updateNode, deleteNode, toggleNode: toggleNodeStore, moveNode, fetchNodeById, updateNodeChildrenOrder } = useNodeStore();
 
   const findNodeInTree = useCallback((currentNodes, nodeId, callback) => {
@@ -81,18 +81,46 @@ export const useNodeManagement = (user) => {
   const handleNodeSelect = useCallback(async (node) => {
     setLoading(true);
     setError(null);
+    
+    // Check if the current editor has unsaved changes and save them
+    if (nodeEditorRef.current && nodeEditorRef.current.isDirty) {
+      console.log('Detected unsaved changes, saving before new node selection.');
+      await nodeEditorRef.current.savePendingChanges();
+    }
+
     try {
       // Only set the selected node after fetching its detailed content
       const detailedNodeResponse = await nodeService.getNodeById(node.id);
       const detailedNode = detailedNodeResponse.node;
+
       setSelectedNode(detailedNode);
+      // Ensure the editor loses focus when a new node is selected
+      // This is generally handled by React component lifecycle, but can be forced if needed.
+      // Forcing blur here might interfere with ReactQuill's internal logic,
+      // so we rely on component unmount and the new save mechanism.
     } catch (err) {
       setError(`Failed to load node content: ${err.message}`);
       console.error('Error loading node content:', err);
     } finally {
       setLoading(false);
     }
-  }, [setSelectedNode, setLoading, setError]);
+  }, [setSelectedNode, setLoading, setError, nodeEditorRef]); // Add nodeEditorRef to dependencies
+
+  // Remove handleNodeSelectWithSave as handleNodeSelect now includes save logic
+  // const handleNodeSelectWithSave = useCallback(async (node) => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     if (selectedNode) {
+  //       console.log('Node selection triggered, current editor should auto-save on unmount');
+  //     }
+  //     await handleNodeSelect(node);
+  //   } catch (err) {
+  //     setError(`Failed to switch nodes: ${err.message}`);
+  //     console.error('Error switching nodes:', err);
+  //     setLoading(false);
+  //   }
+  // }, [selectedNode, handleNodeSelect, setLoading, setError]);
 
   const handleNodeCreate = useCallback(async (parentId, name, nodeType, contents) => {
     setError(null);

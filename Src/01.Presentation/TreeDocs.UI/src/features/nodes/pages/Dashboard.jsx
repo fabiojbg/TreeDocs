@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useAuth } from 'src/features/auth/context/AuthContext';
 import Header from 'src/components/layout/Header';
 import NodeTree from '../components/NodeTree';
@@ -10,7 +10,9 @@ export default function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isEditorFocused, setIsEditorFocused] = useState(false);
-  
+  const nodeEditorRef = useRef(null); // Create a ref for the NodeEditor
+  const isMounted = useRef(true); // To track component mount state
+
   const {
     nodes,
     selectedNode,
@@ -21,13 +23,8 @@ export default function DashboardPage() {
     handleNodeUpdate,
     handleNodeDelete,
     handleKeyboardNavigation, 
-    handleNodeMove, // Destructure the new handler
-  } = useNodeManagement(user);
-
-  const handleLogout = useCallback(() => {
-    logout();
-    navigate('/login');
-  }, [logout, navigate]);
+    handleNodeMove,
+  } = useNodeManagement(user, nodeEditorRef);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -48,7 +45,43 @@ export default function DashboardPage() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedNode, handleNodeCreate, handleNodeDelete, handleKeyboardNavigation, isEditorFocused]); // Dependencies remain the same
+  }, [selectedNode, handleNodeCreate, handleNodeDelete, handleKeyboardNavigation, isEditorFocused]);
+
+  // Cleanup on unmount - save pending changes and prevent state updates
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      if (nodeEditorRef.current && nodeEditorRef.current.isDirty) {
+        console.log('Dashboard unmounting, attempting to save pending editor changes.');
+        nodeEditorRef.current.savePendingChanges().catch(err => {
+          console.error('Error saving changes on Dashboard unmount:', err);
+        });
+      }
+    };
+  }, []);
+
+  // Save before navigation (e.g., clicking a link in Header that might cause Dashboard to unmount)
+  const handleNavigation = useCallback(async (navigationCallback) => {
+    if (nodeEditorRef.current && nodeEditorRef.current.isDirty) {
+      console.log('Navigation detected, attempting to save pending editor changes.');
+      try {
+        await nodeEditorRef.current.savePendingChanges();
+      } catch (err) {
+        console.error('Error saving changes before navigation:', err);
+        // Optionally, you could ask for user confirmation here before navigating
+      }
+    }
+    if (isMounted.current) {
+      navigationCallback();
+    }
+  }, [nodeEditorRef]);
+
+  const handleLogout = useCallback(async () => {
+    await handleNavigation(() => {
+      logout();
+      navigate('/login');
+    });
+  }, [logout, navigate, handleNavigation]);
 
   if (!user) {
     return (
@@ -102,6 +135,7 @@ export default function DashboardPage() {
         <div className="flex-1 overflow-hidden">
           {selectedNode ? (
             <NodeEditor
+              ref={nodeEditorRef} // Pass the ref here
               node={selectedNode}
               onUpdate={handleNodeUpdate}
               onEditorFocusChange={setIsEditorFocused}

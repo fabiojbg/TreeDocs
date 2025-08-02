@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import toast from 'react-hot-toast'
@@ -7,21 +7,70 @@ import toast from 'react-hot-toast'
 // (https://github.com/zenoamaro/react-quill/issues/1126).
 // This is not an issue with the component's direct code, but an internal warning from the library itself.
 // It typically requires an update to the ReactQuill package to resolve.
-export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
+export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusChange }, ref) {
   const [name, setName] = useState(node?.name || '')
   const [contents, setContents] = useState(node?.contents || '')
   const [isEditingName, setIsEditingName] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
+  const reactQuillRef = useRef(null)
+  const isMounted = useRef(true)
 
   useEffect(() => {
     if (node) {
       setName(node.name || '')
       setContents(node.contents || '')
+      setIsDirty(false)
+    }
+    return () => {
+      isMounted.current = false
     }
   }, [node])
 
+  useImperativeHandle(ref, () => ({
+    savePendingChanges: savePendingChanges,
+    isDirty: isDirty,
+    // Add any other methods/states you want to expose to the parent
+  }))
+
+  // Cleanup on unmount - save pending changes
+  useEffect(() => {
+    return () => {
+      if (isMounted.current && isDirty && node) {
+        // Attempt to save any pending changes when component unmounts
+        savePendingChanges()
+      }
+    }
+  }, [isDirty, node])
+
+  const checkIfContentsChanged = useCallback(() => {
+    if (!node) return false
+    return contents !== node.contents || name !== node.name
+  }, [contents, name, node])
+
+  const savePendingChanges = useCallback(async () => {
+    if (!node || !checkIfContentsChanged() || saving) return
+
+    try {
+      const updates = {
+        name: name,
+        contents: contents,
+        parentId: node.parentId,
+        childrenOrder: node.childrenOrder
+      }
+      
+      const result = await onUpdate(node.id, updates);
+      if (result && result.node && isMounted.current) {
+        setIsDirty(false)
+        console.log('Auto-saved pending changes on unmount')
+      }
+    } catch (err) {
+      console.error('Error auto-saving pending changes:', err)
+    }
+  }, [node, name, contents, onUpdate, saving, checkIfContentsChanged])
+
   const handleSave = async () => {
-    if (!node || contents === node.contents) return
+    if (!node || !checkIfContentsChanged() || saving) return
     
     setSaving(true)
     
@@ -34,15 +83,18 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
       }
       
       const result = await onUpdate(node.id, updates);
-      if (result && result.node) {
+      if (result && result.node && isMounted.current) {
         setName(result.node.name);
         setContents(result.node.contents);
+        setIsDirty(false);
         toast.success('Node saved successfully!');
       }
     } catch (err) {
       console.error('Error saving node:', err)
     } finally {
-      setSaving(false)
+      if (isMounted.current) {
+        setSaving(false)
+      }
     }
   }
 
@@ -63,18 +115,43 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
       }
       
       const result = await onUpdate(node.id, updates);
-      if (result && result.node) {
+      if (result && result.node && isMounted.current) {
         setName(result.node.name);
         setContents(result.node.contents);
+        setIsDirty(false);
         toast.success('Node name updated successfully!');
       }
       setIsEditingName(false)
     } catch (err) {
       console.error('Error saving node name:', err)
     } finally {
-      setSaving(false)
+      if (isMounted.current) {
+        setSaving(false)
+      }
     }
   }
+
+  // Expose save function to parent component via ref
+  useEffect(() => {
+    if (reactQuillRef.current) {
+      reactQuillRef.current.saveBeforeUnmount = savePendingChanges
+    }
+  }, [savePendingChanges])
+
+  const handleContentsChange = useCallback((value) => {
+    setContents(value)
+    setIsDirty(true);
+  }, [])
+
+  const handleNameChange = useCallback((value) => {
+    setName(value)
+    setIsDirty(true);
+  }, [])
+
+  // Recalculate dirty state when name or contents change, *after* they've been set
+  useEffect(() => {
+    setIsDirty(checkIfContentsChanged());
+  }, [name, contents, checkIfContentsChanged]);
 
   if (!node) {
     return null
@@ -91,7 +168,7 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
                 <input
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   className="text-lg font-semibold text-gray-900 border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
@@ -99,6 +176,7 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
                     } else if (e.key === 'Escape') {
                       setName(node.name || '')
                       setIsEditingName(false)
+                      setIsDirty(false)
                     }
                   }}
                   autoFocus
@@ -114,6 +192,7 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
                   onClick={() => {
                     setName(node.name || '')
                     setIsEditingName(false)
+                    setIsDirty(false)
                   }}
                   className="text-sm text-gray-500 hover:text-gray-700"
                 >
@@ -127,6 +206,7 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
                   onClick={() => setIsEditingName(true)}
                 >
                   {node.name || 'Untitled'}
+                  {isDirty && <span className="text-xs text-orange-500 ml-2">*</span>}
                 </h1>
                 <button
                   onClick={() => setIsEditingName(true)}
@@ -141,6 +221,15 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
           </div>
           
           <div className="flex items-center space-x-2">
+            {isDirty && (
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            )}
           </div>
         </div>
         
@@ -155,8 +244,9 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
       {/* Content Editor */}
       <div className="flex-1 overflow-hidden">
         <ReactQuill
+          ref={reactQuillRef}
           value={contents}
-          onChange={setContents}
+          onChange={handleContentsChange}
           className="h-full"
           modules={{
             toolbar: [
@@ -191,4 +281,4 @@ export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
       </div>
     </div>
   )
-}
+})
