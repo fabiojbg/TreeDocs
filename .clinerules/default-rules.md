@@ -2,14 +2,24 @@
 This project is a web application where users can create rich text or html notes in a hierarchical way (tree). 
 Every node in the tree can have notes. 
 When a node is selected, the user can see and change the rich text note of it.
+The user should be able to reposition the nodes using drag and drop where:
+  1) The user can move a node to another parent node
+  2) The user can re-order a node in the same parent because the order of to nodes in a parent can be persisted and changed
+  3) The user can move a node to another parent in any position order.
 At the start, the app starts with a root node. The user can add child nodes using the context menu of each node. The context menu give options to add a child node, or remove the node and its children (upon confirmation popup)
 
 # Project Guidelines
 
 - To know how the project is structured, read the sections 'Simplified Project Folder Structure' and 'Module Responsibilities' below. You must keep these sections up to date with changes in the project.
-- The main service API is documented in file '.clinerules/TreedocsServices_API.md'. Consult it to know the project APIs and create new ones.
+- The main service APIs are documented in these files
+    1) '.clinerules/TreedocsServices_NodesAPI.md': APIs operations with nodes.
+    2) '.clinerules/TreedocsServices_UserAPI.md': APIs for user management.
 - Pay attention to the MCP Tools available to use them whenever necessary
 - This project is being develop in a windows operating system, when emitting multiple commands in a single line to the terminal, use a semi-colon to separate them (ex: 'cd newFolder; npm run dev')
+
+# How to work 
+
+- use the Task Manager tool to manage the progress of the tasks/steps when a user request requires more than 1 step to be acomplished
 
 # Code Style & Patterns
 
@@ -94,7 +104,8 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   │   │   │   ├── pages/ # Pages specific to nodes
 │   │   │   │   │   │   │   └── Dashboard.jsx # Primary application interface containing node tree and editor
 │   │   │   │   │   │   ├── hooks/ # Custom hooks for node-related logic
-│   │   │   │   │   │   │   └── useNodeManagement.js # Centralizes and reuses stateful logic for node operations
+│   │   │   │   │   │   │   ├── useNodeManagement.js # Centralizes and reuses stateful logic for node operations
+│   │   │   │   │   │   │   └── useNodeDragAndDrop.js # Custom hook for drag and drop logic
 │   │   │   │   │   │   ├── services/ # API service implementations for nodes
 │   │   │   │   │   │   │   └── nodeService.js # Manages node-related API operations (CRUD for tree nodes)
 │   │   │   │   │   │   └── store/ # Zustand stores for global node state

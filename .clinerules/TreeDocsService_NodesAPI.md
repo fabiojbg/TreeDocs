@@ -98,8 +98,12 @@ This document provides an overview of the REST APIs exposed by the `TreeDocs.Ser
     - **Response**: `DeleteNodeResponse` or `RequestResult` in case of errors (see [2. Error Handling Instructions](#2-error-handling-instructions))
         - (Empty, indicates successful deletion)
 
+## 2. Node Handling
+The node API is made to allow the repositioning of the node in a tree. With the `PUT /api/v1/nodes` endpoint you can:
+1) move a node to another parent just changing the node "ParentId" parameter
+2) move one or more nodes position inside a parent by managing the "ChildrenOrder" parameter in the parent node.
 
-## 2. Error Handling Instructions
+## 3. Error Handling Instructions
 For all API endpoints, the following error structure is returned in case of any error. This structure is returned instead of the expected response. For ease of identification by the caller, the properties returned start with the character '_'. No API responses have properties starting with this character.
 
 ```c#
