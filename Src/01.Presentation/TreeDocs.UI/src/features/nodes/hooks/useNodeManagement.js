@@ -3,7 +3,7 @@ import { nodeService } from '../services/nodeService';
 import { useNodeStore } from '../store/nodeStore';
 
 export const useNodeManagement = (user) => {
-  const { nodes, selectedNode, loading, error, openNodes, setNodes, setSelectedNode, setLoading, setError, addNode, updateNode, deleteNode, toggleNode: toggleNodeStore } = useNodeStore();
+  const { nodes, selectedNode, loading, error, openNodes, setNodes, setSelectedNode, setLoading, setError, addNode, updateNode, deleteNode, toggleNode: toggleNodeStore, moveNode, fetchNodeById, updateNodeChildrenOrder } = useNodeStore();
 
   const findNodeInTree = useCallback((currentNodes, nodeId, callback) => {
     for (let i = 0; i < currentNodes.length; i++) {
@@ -18,6 +18,15 @@ export const useNodeManagement = (user) => {
     }
     return null;
   }, []);
+
+  const getNodeByIdFromTree = useCallback((allNodes, nodeId) => {
+    let foundNode = null;
+    findNodeInTree(allNodes, nodeId, (node) => {
+      foundNode = node;
+      return true; // Stop traversal
+    });
+    return foundNode;
+  }, [findNodeInTree]);
 
   const getSiblingsAndIndex = useCallback((allNodes, targetId) => {
     let result = { siblings: [], index: -1 };
@@ -70,19 +79,20 @@ export const useNodeManagement = (user) => {
   }, [user, loadUserNodes]);
 
   const handleNodeSelect = useCallback(async (node) => {
-    setSelectedNode(node);
+    setLoading(true);
     setError(null);
     try {
-      const detailedNode = await nodeService.getNodeById(node.id);
-      setSelectedNode({
-        ...node, // Keep existing properties like children
-        ...detailedNode.node, // Overlay detailed properties like contents
-      });
+      // Only set the selected node after fetching its detailed content
+      const detailedNodeResponse = await nodeService.getNodeById(node.id);
+      const detailedNode = detailedNodeResponse.node;
+      setSelectedNode(detailedNode);
     } catch (err) {
-      setError(`Failed to load content for ${node.name}`);
-      console.error('Error fetching node details:', err);
+      setError(`Failed to load node content: ${err.message}`);
+      console.error('Error loading node content:', err);
+    } finally {
+      setLoading(false);
     }
-  }, [setSelectedNode, setError]);
+  }, [setSelectedNode, setLoading, setError]);
 
   const handleNodeCreate = useCallback(async (parentId, name, nodeType, contents) => {
     setError(null);
@@ -123,6 +133,137 @@ export const useNodeManagement = (user) => {
       throw err;
     }
   }, [deleteNode, setError]);
+
+  const calculateNewChildrenOrder = useCallback((parentNode, draggedNodeId, targetNodeId, dropPosition) => {
+    if (!parentNode || !parentNode.children) return [];
+    
+    const currentChildren = [...parentNode.children];
+    const draggedIndex = currentChildren.findIndex(child => child.id === draggedNodeId);
+    const targetIndex = currentChildren.findIndex(child => child.id === targetNodeId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return parentNode.childrenOrder || [];
+
+    // Remove the dragged node from its current position
+    const [draggedNode] = currentChildren.splice(draggedIndex, 1);
+    
+    // Find where to insert it based on the target
+    let insertIndex = currentChildren.findIndex(child => child.id === targetNodeId);
+    
+    if (dropPosition === 'before') {
+      // Insert before the target
+      currentChildren.splice(insertIndex, 0, draggedNode);
+    } else if (dropPosition === 'after') {
+      // Insert after the target
+      currentChildren.splice(insertIndex + 1, 0, draggedNode);
+    } else {
+      // Insert inside (at the end)
+      currentChildren.push(draggedNode);
+    }
+    
+    // Return the new order of child IDs
+    return currentChildren.map(child => child.id);
+  }, []);
+
+  const calculateInsertionOrderForNewParent = useCallback((newParentChildren, draggedNodeId, targetNodeId, dropPosition) => {
+    const currentChildren = [...newParentChildren];
+    const targetIndex = currentChildren.findIndex(child => child.id === targetNodeId);
+    
+    if (targetIndex === -1) return currentChildren.map(child => child.id);
+    
+    let insertIndex = targetIndex;
+    
+    if (dropPosition === 'before') {
+      // Insert before the target
+      currentChildren.splice(insertIndex, 0, { id: draggedNodeId });
+    } else if (dropPosition === 'after') {
+      // Insert after the target
+      currentChildren.splice(insertIndex + 1, 0, { id: draggedNodeId });
+    } else {
+      // Insert inside (at the end)
+      currentChildren.push({ id: draggedNodeId });
+    }
+    
+    // Return the new order of child IDs
+    return currentChildren.map(child => child.id);
+  }, []);
+
+  const handleNodeMove = useCallback(async (draggedNodeId, targetNodeId, dropPosition) => {
+    setError(null);
+    try {
+        const draggedNode = getNodeByIdFromTree(nodes, draggedNodeId);
+        const targetNode = getNodeByIdFromTree(nodes, targetNodeId);
+
+        if (!draggedNode || !targetNode || draggedNode.id === targetNode.id) {
+            return;
+        }
+
+        const newParentId = dropPosition === 'inside' ? targetNode.id : targetNode.parentId;
+        const parentIdChanged = draggedNode.parentId !== newParentId;
+
+        if (parentIdChanged) {
+          // Parent changed - update the dragged node's parentId and calculate new childrenOrder for new parent
+          const newParentNode = getNodeByIdFromTree(nodes, newParentId);
+          
+          if (!newParentNode) return;
+
+          // Calculate the new childrenOrder for the new parent based on drop position
+          const newChildrenOrderForNewParent = calculateInsertionOrderForNewParent(
+            newParentNode.children || [], 
+            draggedNodeId, 
+            targetNodeId, 
+            dropPosition
+          );
+
+          // First API call: Update the dragged node's parentId
+          await nodeService.updateNode(draggedNodeId, newParentId, null, null, null);
+          
+          // Second API call: Update the new parent's childrenOrder
+          await nodeService.updateNode(newParentId, null, null, null, newChildrenOrderForNewParent);
+          
+          // Reload all user nodes to ensure the UI is in sync with the backend's new tree structure.
+          // This is more reliable than complex optimistic updates for tree-altering changes.
+          await loadUserNodes();
+
+          // After reloading, find the moved node (which should now exist in the tree with its new parentId)
+          // and select it. Also, ensure its new parent is expanded.
+          setTimeout(() => { // Use setTimeout to ensure state from loadUserNodes has settled
+              const movedNode = getNodeByIdFromTree(nodes, draggedNodeId);
+              if (movedNode) {
+                setSelectedNode(movedNode); // Or fetch full details if needed: handleNodeSelect(movedNode)
+                if (movedNode.parentId && !openNodes[movedNode.parentId]) {
+                  toggleNodeStore(movedNode.parentId);
+                }
+              } else {
+                // Fallback: try to select by ID if getNodeByIdFromTree fails immediately
+                handleNodeSelect({ id: draggedNodeId });
+              }
+          }, 0);
+        } else {
+          // Same parent - reorder children
+          const parentNode = getNodeByIdFromTree(nodes, draggedNode.parentId);
+          if (!parentNode) return;
+
+          // Calculate new children order
+          const newChildrenOrder = calculateNewChildrenOrder(parentNode, draggedNodeId, targetNodeId, dropPosition);
+          
+          // Check if order actually changed
+          const currentOrder = parentNode.childrenOrder || parentNode.children?.map(child => child.id) || [];
+          if (JSON.stringify(currentOrder) !== JSON.stringify(newChildrenOrder)) {
+            // Update parent's childrenOrder via API
+            await nodeService.updateNode(parentNode.id, null, null, null, newChildrenOrder);
+            
+            // Optimistically update the UI
+            updateNodeChildrenOrder(parentNode.id, newChildrenOrder);
+          }
+        }
+
+    } catch (err) {
+        console.error('Error moving node:', err);
+        setError('Failed to move node');
+        throw err;
+    }
+}, [nodes, getNodeByIdFromTree, moveNode, setError, calculateNewChildrenOrder, calculateInsertionOrderForNewParent, updateNodeChildrenOrder]);
+
 
   const handleKeyboardNavigation = useCallback((event) => {
     if (!selectedNode || nodes.length === 0) {
@@ -195,5 +336,6 @@ export const useNodeManagement = (user) => {
     handleNodeUpdate,
     handleNodeDelete,
     handleKeyboardNavigation,
+    handleNodeMove, // Expose handleNodeMove
   };
 };

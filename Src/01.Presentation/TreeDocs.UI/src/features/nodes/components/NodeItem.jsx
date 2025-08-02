@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 
-const NodeItem = memo(({ node, level, isExpanded, isSelected, hasChildren, onSelect, onToggle, onContextMenu }) => {
+const NodeItem = memo(({ node, level, isExpanded, isSelected, hasChildren, onSelect, onToggle, onContextMenu, onDragStart, onDragOver, onDrop, onDragEnd, onDragEnter, onDragLeave, draggedOverNodeId, dropPositionState }) => {
   const handleToggle = (e) => {
     e.stopPropagation()
     onToggle(node.id)
@@ -16,12 +16,19 @@ const NodeItem = memo(({ node, level, isExpanded, isSelected, hasChildren, onSel
 
   return (
     <div
-      className={`flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-gray-100 ${
+      className={`relative flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-gray-100 ${
         isSelected ? 'bg-indigo-50 border-l-4 border-indigo-500' : ''
-      }`}
+      } ${draggedOverNodeId === node.id && dropPositionState === 'inside' ? 'border-2 border-blue-500' : ''}`}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
       onClick={handleSelect}
       onContextMenu={handleRightClick}
+      draggable="true"
+      onDragStart={(e) => onDragStart(e, node)}
+      onDragOver={(e) => onDragOver(e, node)}
+      onDrop={(e) => onDrop(e, node)}
+      onDragEnd={(e) => onDragEnd(e, node)}
+      onDragEnter={(e) => onDragEnter(e, node)}
+      onDragLeave={(e) => onDragLeave(e, node)}
     >
       {hasChildren && (
         <button

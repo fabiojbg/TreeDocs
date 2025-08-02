@@ -1,15 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useAuth } from 'src/features/auth/context/AuthContext';
 import Header from 'src/components/layout/Header';
 import NodeTree from '../components/NodeTree';
 import NodeEditor from '../components/NodeEditor';
 import { useNavigate } from 'react-router-dom';
 import { useNodeManagement } from '../hooks/useNodeManagement';
-import { useEffect } from 'react';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isEditorFocused, setIsEditorFocused] = useState(false);
   
   const {
     nodes,
@@ -20,7 +20,8 @@ export default function DashboardPage() {
     handleNodeCreate,
     handleNodeUpdate,
     handleNodeDelete,
-    handleKeyboardNavigation, // Destructure the new handler
+    handleKeyboardNavigation, 
+    handleNodeMove, // Destructure the new handler
   } = useNodeManagement(user);
 
   const handleLogout = useCallback(() => {
@@ -38,7 +39,7 @@ export default function DashboardPage() {
         if (window.confirm(`Are you sure you want to delete "${selectedNode.name}" and all its children?`)) {
           handleNodeDelete(selectedNode.id);
         }
-      } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      } else if (!isEditorFocused && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         handleKeyboardNavigation(event);
       }
     };
@@ -47,7 +48,7 @@ export default function DashboardPage() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedNode, handleNodeCreate, handleNodeDelete, handleKeyboardNavigation]); // Add handleKeyboardNavigation to dependencies
+  }, [selectedNode, handleNodeCreate, handleNodeDelete, handleKeyboardNavigation, isEditorFocused]); // Dependencies remain the same
 
   if (!user) {
     return (
@@ -91,6 +92,7 @@ export default function DashboardPage() {
                 onSelect={handleNodeSelect}
                 onCreate={handleNodeCreate}
                 onDelete={handleNodeDelete}
+                onMoveNode={handleNodeMove} // Pass handleNodeMove to NodeTree
               />
             )}
           </div>
@@ -102,6 +104,7 @@ export default function DashboardPage() {
             <NodeEditor
               node={selectedNode}
               onUpdate={handleNodeUpdate}
+              onEditorFocusChange={setIsEditorFocused}
             />
           ) : (
             <div className="flex items-center justify-center h-full">

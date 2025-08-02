@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 // (https://github.com/zenoamaro/react-quill/issues/1126).
 // This is not an issue with the component's direct code, but an internal warning from the library itself.
 // It typically requires an update to the ReactQuill package to resolve.
-export default function NodeEditor({ node, onUpdate }) {
+export default function NodeEditor({ node, onUpdate, onEditorFocusChange }) {
   const [name, setName] = useState(node?.name || '')
   const [contents, setContents] = useState(node?.contents || '')
   const [isEditingName, setIsEditingName] = useState(false)
@@ -21,7 +21,7 @@ export default function NodeEditor({ node, onUpdate }) {
   }, [node])
 
   const handleSave = async () => {
-    if (!node) return
+    if (!node || contents === node.contents) return
     
     setSaving(true)
     
@@ -141,21 +141,6 @@ export default function NodeEditor({ node, onUpdate }) {
           </div>
           
           <div className="flex items-center space-x-2">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {saving ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Saving...
-                </>
-              ) : 'Save'}
-            </button>
           </div>
         </div>
         
@@ -192,8 +177,16 @@ export default function NodeEditor({ node, onUpdate }) {
             'link', 'image'
           ]}
           placeholder="Start writing your note here..."
-
-        onBlur={handleSave}
+          onFocus={() => onEditorFocusChange && onEditorFocusChange(true)}
+          onBlur={() => {
+            onEditorFocusChange && onEditorFocusChange(false);
+            handleSave();
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'Delete') {
+              event.stopPropagation();
+            }
+          }}
         />
       </div>
     </div>
