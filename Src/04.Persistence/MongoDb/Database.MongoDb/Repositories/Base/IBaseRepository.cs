@@ -11,7 +11,7 @@ namespace Repository.MongoDb.Repositories
 {
     public interface IBaseRepository<TEntity>  where TEntity : DbNodeEntity
     {
-        Task<TEntity> GetByIdAsync(ObjectId id);
+        Task<TEntity> GetByIdAsync(ObjectId id, params string[] fieldsToReturn);
         Task<ObjectId> CreateAsync(TEntity model);
         Task UpdateAsync(TEntity model);
         Task DeleteAsync(ObjectId id);

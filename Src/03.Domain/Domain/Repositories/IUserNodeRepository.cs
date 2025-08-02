@@ -8,7 +8,7 @@ namespace TreeDocs.Domain.Repositories
     {
         Task<string> CreateAsync(UserNode userNode);
         Task DeleteAsync(string id);
-        Task<UserNode> GetByIdAsync(string id);
+        Task<UserNode> GetByIdAsync(string id, params string[] fieldsToReturn);
         Task<IEnumerable<UserNode>> GetChildrenWithoutContentsAsync(string folderId);
         Task<IEnumerable<UserNode>> GetAllUserNodesWithoutContentsAsync(string userId);
         Task UpdateAsync(UserNode userNode);

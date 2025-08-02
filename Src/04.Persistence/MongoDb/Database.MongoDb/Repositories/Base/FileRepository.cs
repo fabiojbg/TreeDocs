@@ -61,7 +61,7 @@ namespace Repository.MongoDb.Repositories
             return id;
         }
 
-        public virtual async Task<TEntity> GetByIdAsync(ObjectId id)
+        public virtual async Task<TEntity> GetByIdAsync(ObjectId id, params string[] fieldsToReturn)
         {
             if (id == ObjectId.Empty)
                 return null;

@@ -120,6 +120,9 @@
   <data name="ErrCannotCreateNodeInAnotherUserNode" xml:space="preserve">
     <value>It is not possible to create a child in another user element</value>
   </data>
+  <data name="ErrCannotMoveNodeToDescendent" xml:space="preserve">
+    <value>The node cannot be moved to a descendent node.</value>
+  </data>
   <data name="ErrFolderNotFound" xml:space="preserve">
     <value>The parent element was not found</value>
   </data>

@@ -79,12 +79,12 @@ namespace Repository.MongoDb
         }
 
 
-        public async Task<UserNode> GetByIdAsync(string id)
+        public async Task<UserNode> GetByIdAsync(string id, params string[] fieldsToReturn)
         {
             if (!ObjectId.TryParse(id, out ObjectId oid))
                 return null;
 
-            var dbNode = await _nodeRepository.GetByIdAsync(oid);
+            var dbNode = await _nodeRepository.GetByIdAsync(oid, fieldsToReturn);
             if (dbNode == null)
                 return null;
 

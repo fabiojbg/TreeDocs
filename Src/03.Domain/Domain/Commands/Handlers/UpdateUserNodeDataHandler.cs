@@ -2,12 +2,14 @@
 using Domain.Shared;
 using Domain.Shared.Validations;
 using MediatR;
+using Pipelines.Sockets.Unofficial.Arenas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TreeDocs.Domain.Entities;
 using TreeDocs.Domain.Repositories;
 using TreeDocs.Domain.RequestResponses;
 using TreeDocs.Domain.RequestsResponses;
@@ -35,17 +37,26 @@ namespace TreeDocs.Domain.Commands.Handlers
             if( dbNode == null)
                 return new RequestResult<UpdateUserNodeDataResponse>(DomainResources.ErrNodeNotFound, RequestResultType.ObjectNotFound);
 
-            if(request.ParentId!=null && !request.ParentId.EqualsIgnoreCase(dbNode.ParentId) )
+            var oldParentId = dbNode.ParentId;
+            if (request.ParentId!=null && !request.ParentId.EqualsIgnoreCase(oldParentId) )
             {
-                var parent = await _nodeRep.GetByIdAsync(request.ParentId);
-                if (parent == null)
+                var newParent = await _nodeRep.GetByIdAsync(request.ParentId);
+                if (newParent == null)
                     AddNotification(DomainResources.ErrFolderNotFound);
                 else
                 {
-                    if (parent.OwnerId != _userServices.LoggedUserId)
+                    if (newParent.OwnerId != _userServices.LoggedUserId)
                         AddNotification(DomainResources.ErrCannotCreateNodeInAnotherUserNode);
                     else
-                        dbNode.ParentId = request.ParentId;
+                    {
+                        if (await newParentIsADescendent(request.NodeId, newParent))
+                        {
+                            AddNotification(DomainResources.ErrCannotMoveNodeToDescendent);
+                            return new RequestResult<UpdateUserNodeDataResponse>(Notifications);
+                        }
+                        else
+                            dbNode.ParentId = request.ParentId;
+                    }
                 }
             }
             
@@ -79,14 +90,32 @@ namespace TreeDocs.Domain.Commands.Handlers
             if ( request.NodeContents != null)
                 dbNode.Contents = String.IsNullOrWhiteSpace(request.NodeContents) ? null : request.NodeContents;
 
-            await _nodeRep.UpdateAsync(dbNode);
+           await _nodeRep.UpdateAsync(dbNode);
 
-            await _nodeRep.SaveChanges();
+           await _nodeRep.SaveChanges();
 
             var response = new UpdateUserNodeDataResponse { Node = new Node(dbNode) };
 
             return new RequestResult<UpdateUserNodeDataResponse>(response);
 
+        }
+
+        async Task<bool> newParentIsADescendent(string oldParentId, UserNode newParent)
+        {
+            var possibleDescendent = newParent;
+            do
+            {
+                if (possibleDescendent.ParentId == null)
+                    return false;
+
+                if (possibleDescendent.ParentId == oldParentId)
+                    return true;
+
+                possibleDescendent = await _nodeRep.GetByIdAsync(possibleDescendent.ParentId, nameof(UserNode.ParentId));
+            }
+            while (possibleDescendent != null);
+
+            return false;
         }
     }
 }

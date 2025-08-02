@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using Pipelines.Sockets.Unofficial.Arenas;
 using Repository.MongoDb.DbModels;
 using System;
 using System.Collections.Generic;
@@ -49,18 +50,43 @@ namespace Repository.MongoDb.Repositories
             return obj.Id;
         }
 
-        public virtual async Task<TEntity> GetByIdAsync(ObjectId id)
+        public virtual async Task<TEntity> GetByIdAsync(ObjectId id, params string[] fieldsToReturn)
         {
             if (id == ObjectId.Empty)
                 return null;
 
-            IAsyncCursor<TEntity> data;
-            if (_db.Session != null)
-                data = await _collection.FindAsync(_db.Session, Builders<TEntity>.Filter.Eq("_id", id));
-            else
-                data = await _collection.FindAsync(Builders<TEntity>.Filter.Eq("_id", id));
+            ProjectionDefinition<TEntity> projection = null;
 
-            return data.FirstOrDefault(); 
+            if( fieldsToReturn != null && fieldsToReturn.Length>0)
+            {
+                var projectionBuilder = Builders<TEntity>.Projection;
+                projection = projectionBuilder.Combine(fieldsToReturn.Select(field => projectionBuilder.Include(field)));
+            }
+
+            if (projection == null)
+            {
+                IAsyncCursor<TEntity> data;
+                if (_db.Session != null)
+                    data = await _collection.FindAsync(_db.Session, Builders<TEntity>.Filter.Eq("_id", id));
+                else
+                    data = await _collection.FindAsync(Builders<TEntity>.Filter.Eq("_id", id));
+
+                return data.FirstOrDefault();
+            }
+            else
+            {
+                if (_db.Session != null)
+                {
+                    var data = _collection.Find(_db.Session, Builders<TEntity>.Filter.Eq("_id", id)).Project<TEntity>(projection);
+                    return await data.FirstOrDefaultAsync();
+                }
+                else
+                {
+
+                    var queryProjection = _collection.Find(Builders<TEntity>.Filter.Eq("_id", id)).Project<TEntity>(projection);
+                    return await queryProjection.FirstOrDefaultAsync();
+                }
+            }
         }
 
         public virtual async Task<IEnumerable<TEntity>> GetListAsync(ObjectId? folderId)
