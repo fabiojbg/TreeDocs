@@ -1,3 +1,120 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* ReactQuill Editor Styles for Dark Mode */
+  .dark .ql-container {
+    @apply bg-gray-900 text-white border-gray-700;
+  }
+
+  .dark .ql-editor {
+    @apply text-white;
+  }
+
+  .dark .ql-editor.ql-blank::before {
+    @apply text-gray-400;
+  }
+
+  .dark .ql-toolbar {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .dark .ql-toolbar button {
+    @apply text-gray-200;
+  }
+  
+  .dark .ql-toolbar button svg .ql-stroke {
+    stroke: #e5e7eb; 
+  }
+  
+  .dark .ql-toolbar button svg .ql-fill {
+    fill: #e5e7eb; 
+  }
+
+  .dark .ql-toolbar button:hover svg .ql-stroke {
+    stroke: #ccdcfc; 
+  }
+  
+  .dark .ql-toolbar button:hover svg .ql-fill {
+    fill: #b5c7eb; 
+  }  
+
+  .dark .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+    stroke: #45A5FF; 
+  }
+  
+  .dark .ql-snow.ql-toolbar .ql-active
+  {
+    background-color: white;
+  }
+
+  .dark .ql-toolbar button:hover {
+    @apply bg-gray-600;
+  }
+
+  .dark .ql-toolbar .ql-active {
+    @apply bg-gray-600 text-white;
+  }
+
+  .dark .ql-toolbar .ql-picker {
+    @apply text-gray-200;
+  }
+
+  .dark .ql-toolbar .ql-picker-label {
+    @apply text-gray-200;
+  }
+  
+  .dark .ql-toolbar .ql-picker-label svg .ql-stroke,
+  .dark .ql-toolbar .ql-picker-label svg .ql-fill {
+    stroke: #e5e7eb; /* gray-200 */
+    fill: #e5e7eb; /* gray-200 */
+  }
+  
+  .dark .ql-toolbar .ql-picker-label:hover {
+    @apply bg-gray-600;
+    color: #a5b4fc; /* light indigo for better visibility on hover */
+  }
+
+  .dark .ql-toolbar .ql-picker-options {
+    @apply bg-gray-800 text-gray-300 border-gray-700;
+  }
+
+  .dark .ql-toolbar .ql-picker-item {
+    @apply text-gray-200;
+  }
+
+  .dark .ql-toolbar .ql-picker-item:hover {
+    @apply bg-gray-600 text-indigo-300;
+  }
+  
+  .dark .ql-toolbar .ql-picker-item svg .ql-stroke,
+  .dark .ql-toolbar .ql-picker-item svg .ql-fill {
+    stroke: #e5e7eb; /* gray-200 */
+    fill: #e5e7eb; /* gray-200 */
+  }
+
+  /* Ensure the editor content area also adapts */
+  .dark .ql-editor h1,
+  .dark .ql-editor h2,
+  .dark .ql-editor h3,
+  .dark .ql-editor h4,
+  .dark .ql-editor h5,
+  .dark .ql-editor h6 {
+    @apply text-white;
+  }
+
+  .dark .ql-editor p,
+  .dark .ql-editor ol,
+  .dark .ql-editor ul,
+  .dark .ql-editor li,
+  .dark .ql-editor blockquote,
+  .dark .ql-editor a,
+  .dark .ql-editor pre {
+    @apply text-gray-100;
+  }
+
+  .dark .ql-editor a {
+    @apply text-indigo-400 hover:text-indigo-300;
+  }
+}

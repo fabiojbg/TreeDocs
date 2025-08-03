@@ -158,7 +158,7 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
+<div className="h-full flex flex-col bg-white dark:bg-gray-900">
       {/* Header */}
       <div className="border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
@@ -201,16 +201,16 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <h1
-                  className="text-lg font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
-                  onClick={() => setIsEditingName(true)}
-                >
-                  {node.name || 'Untitled'}
-                  {isDirty && <span className="text-xs text-orange-500 ml-2">*</span>}
-                </h1>
-                <button
-                  onClick={() => setIsEditingName(true)}
-                  className="text-gray-400 hover:text-gray-600"
+                  <h1
+                    className="text-lg font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
+                    onClick={() => setIsEditingName(true)}
+                  >
+                    {node.name || 'Untitled'}
+                    {isDirty && <span className="text-xs text-orange-500 dark:text-orange-400 ml-2">*</span>}
+                  </h1>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="text-gray-400 hover:text-gray-600 dark:text-gray-200 dark:hover:text-white"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
