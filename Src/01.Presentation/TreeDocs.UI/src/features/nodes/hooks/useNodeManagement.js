@@ -109,21 +109,6 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     }
   }, [setSelectedNode, setLoading, setError, nodeEditorRef]); // Add nodeEditorRef to dependencies
 
-  // Remove handleNodeSelectWithSave as handleNodeSelect now includes save logic
-  // const handleNodeSelectWithSave = useCallback(async (node) => {
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  //     if (selectedNode) {
-  //       console.log('Node selection triggered, current editor should auto-save on unmount');
-  //     }
-  //     await handleNodeSelect(node);
-  //   } catch (err) {
-  //     setError(`Failed to switch nodes: ${err.message}`);
-  //     console.error('Error switching nodes:', err);
-  //     setLoading(false);
-  //   }
-  // }, [selectedNode, handleNodeSelect, setLoading, setError]);
 
   const handleNodeCreate = useCallback(async (parentId, name, nodeType, contents) => {
     setError(null);
@@ -303,67 +288,6 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     }
 }, [nodes, getNodeByIdFromTree, moveNode, setError, calculateNewChildrenOrder, calculateInsertionOrderForNewParent, updateNodeChildrenOrder, loadUserNodes, handleNodeSelect, openNodes, toggleNodeStore]);
 
-
-  const handleKeyboardNavigation = useCallback((event) => {
-    if (!selectedNode || nodes.length === 0) {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        event.preventDefault();
-      }
-      return;
-    }
-
-    const visibleNodes = getVisibleNodes(nodes, openNodes);
-    const selectedIndex = visibleNodes.findIndex(node => node.id === selectedNode.id);
-
-    let nextNode = null;
-
-    switch (event.key) {
-      case 'ArrowUp':
-        event.preventDefault();
-        if (selectedIndex > 0) {
-          nextNode = visibleNodes[selectedIndex - 1];
-        }
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        if (selectedIndex < visibleNodes.length - 1) {
-          nextNode = visibleNodes[selectedIndex + 1];
-        }
-        break;
-      case 'ArrowLeft':
-        event.preventDefault();
-        if (selectedNode.children && openNodes[selectedNode.id]) {
-          // Collapse if currently open
-          toggleNodeStore(selectedNode.id);
-        } else if (selectedNode.parentId) {
-          // Move to parent if not collapsed and has parent
-          findNodeInTree(nodes, selectedNode.parentId, (parent) => {
-            nextNode = parent;
-            return true;
-          });
-        }
-        break;
-      case 'ArrowRight':
-        event.preventDefault();
-        if (selectedNode.children && selectedNode.children.length > 0) {
-          // Expand if has children
-          if (!openNodes[selectedNode.id]) {
-            toggleNodeStore(selectedNode.id);
-          } else {
-            // Move to first child if already expanded
-            nextNode = selectedNode.children[0];
-          }
-        }
-        break;
-      default:
-        break;
-    }
-
-    if (nextNode) {
-      handleNodeSelect(nextNode);
-    }
-  }, [nodes, selectedNode, openNodes, toggleNodeStore, findNodeInTree, getVisibleNodes, handleNodeSelect]);
-
   return {
     nodes,
     selectedNode,
@@ -374,7 +298,6 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     handleNodeCreate,
     handleNodeUpdate,
     handleNodeDelete,
-    handleKeyboardNavigation,
     handleNodeMove, // Expose handleNodeMove
   };
 };

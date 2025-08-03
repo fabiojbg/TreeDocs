@@ -22,7 +22,6 @@ export default function DashboardPage() {
     handleNodeCreate,
     handleNodeUpdate,
     handleNodeDelete,
-    handleKeyboardNavigation, 
     handleNodeMove,
   } = useNodeManagement(user, nodeEditorRef);
 
@@ -36,16 +35,14 @@ export default function DashboardPage() {
         if (window.confirm(`Are you sure you want to delete "${selectedNode.name}" and all its children?`)) {
           handleNodeDelete(selectedNode.id);
         }
-      } else if (!isEditorFocused && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        handleKeyboardNavigation(event);
-      }
+      } 
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedNode, handleNodeCreate, handleNodeDelete, handleKeyboardNavigation, isEditorFocused]);
+  }, [selectedNode, handleNodeCreate, handleNodeDelete, isEditorFocused]);
 
   // Cleanup on unmount - save pending changes and prevent state updates
   useEffect(() => {
