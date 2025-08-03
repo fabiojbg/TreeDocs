@@ -136,7 +136,10 @@ export default function NodeTree({ nodes, selectedNode, onSelect, onCreate, onDe
         )}
       </div>
     )
-  }, [openNodes, selectedNode, onSelect, toggleNode, handleContextMenu, handleDragStart, handleDragOver, handleDrop, handleDragEnd, handleDragEnter, handleDragLeave, draggedOverNodeId, dropPositionState, draggedNode, nodes]); 
+  }, [openNodes, selectedNode, onSelect, toggleNode, handleContextMenu, 
+      handleDragStart, handleDragOver, handleDrop, handleDragEnd, 
+      handleDragEnter, handleDragLeave, draggedOverNodeId, 
+      dropPositionState, draggedNode, nodes]); 
   return (
     <div className="node-tree">
       {nodes.map(node => renderNode(node))}

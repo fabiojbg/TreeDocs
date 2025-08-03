@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from 'react'; // Import useRef
 import { nodeService } from '../services/nodeService';
 import { useNodeStore } from '../store/nodeStore';
 
+var __treeNeedsReloading = true;
 export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditorRef as a parameter
   const { nodes, selectedNode, loading, error, openNodes, setNodes, setSelectedNode, setLoading, setError, addNode, updateNode, deleteNode, toggleNode: toggleNodeStore, moveNode, fetchNodeById, updateNodeChildrenOrder } = useNodeStore();
 
@@ -55,12 +56,14 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
   }, []);
 
   const loadUserNodes = useCallback(async () => {
+    if( !__treeNeedsReloading )
+      return;
     setLoading(true);
     setError(null);
     try {
       const data = await nodeService.getUserNodes();
       setNodes(data.nodes || []);
-      
+      __treeNeedsReloading = false;
       if (!selectedNode && data.nodes && data.nodes.length > 0) {
         setSelectedNode(data.nodes[0]);
       }
@@ -129,6 +132,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
       const newNodeId = createResponse.id;
       const detailedNewNodeResponse = await nodeService.getNodeById(newNodeId);
       const detailedNewNode = detailedNewNodeResponse.node;
+      __treeNeedsReloading = true;
       addNode(detailedNewNode);
       setSelectedNode(detailedNewNode); 
       return detailedNewNode;
@@ -155,6 +159,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     setError(null);
     try {
       await nodeService.deleteNode(nodeId);
+      __treeNeedsReloading = true;
       deleteNode(nodeId);
     } catch (err) {
       console.error('Error deleting node:', err);
@@ -224,6 +229,8 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
         if (!draggedNode || !targetNode || draggedNode.id === targetNode.id) {
             return;
         }
+        
+        __treeNeedsReloading = true;
 
         const newParentId = dropPosition === 'inside' ? targetNode.id : targetNode.parentId;
         const parentIdChanged = draggedNode.parentId !== newParentId;
@@ -254,18 +261,22 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
 
           // After reloading, find the moved node (which should now exist in the tree with its new parentId)
           // and select it. Also, ensure its new parent is expanded.
-          setTimeout(() => { // Use setTimeout to ensure state from loadUserNodes has settled
+          setTimeout(async () => { // Use setTimeout to ensure state from loadUserNodes has settled
               const movedNode = getNodeByIdFromTree(nodes, draggedNodeId);
               if (movedNode) {
-                setSelectedNode(movedNode); // Or fetch full details if needed: handleNodeSelect(movedNode)
+                // Fetch full details of the moved node to ensure content is loaded
+                await handleNodeSelect(movedNode); 
                 if (movedNode.parentId && !openNodes[movedNode.parentId]) {
                   toggleNodeStore(movedNode.parentId);
                 }
               } else {
                 // Fallback: try to select by ID if getNodeByIdFromTree fails immediately
-                handleNodeSelect({ id: draggedNodeId });
+                // This might happen if the node is no longer visible in the limited 'nodes' state due to filtering or other issues
+                console.warn('Moved node not found in current nodes state after loadUserNodes. Attempting re-fetch by ID.');
+                await handleNodeSelect({ id: draggedNodeId });
               }
           }, 0);
+                                                                                    
         } else {
           // Same parent - reorder children
           const parentNode = getNodeByIdFromTree(nodes, draggedNode.parentId);
@@ -290,7 +301,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
         setError('Failed to move node');
         throw err;
     }
-}, [nodes, getNodeByIdFromTree, moveNode, setError, calculateNewChildrenOrder, calculateInsertionOrderForNewParent, updateNodeChildrenOrder]);
+}, [nodes, getNodeByIdFromTree, moveNode, setError, calculateNewChildrenOrder, calculateInsertionOrderForNewParent, updateNodeChildrenOrder, loadUserNodes, handleNodeSelect, openNodes, toggleNodeStore]);
 
 
   const handleKeyboardNavigation = useCallback((event) => {

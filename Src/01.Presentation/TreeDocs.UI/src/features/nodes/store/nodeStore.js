@@ -93,7 +93,20 @@ export const useNodeStore = create((set) => ({
     const updateNodeInTree = (nodesArray) => {
       return nodesArray.map(node => {
         if (node.id === updatedNode.id) {
-          return { ...node, ...updatedNode };
+          // Merge only the explicit updates from the API response, preserving existing fields
+          return {
+            ...node,
+            name: updatedNode.name !== undefined ? updatedNode.name : node.name,
+            contents: updatedNode.contents !== undefined ? updatedNode.contents : node.contents,
+            // parentId and childrenOrder are typically updated via moveNode or updateNodeChildrenOrder,
+            // but if they come from a general update, apply them.
+            parentId: updatedNode.parentId !== undefined ? updatedNode.parentId : node.parentId,
+            childrenOrder: updatedNode.childrenOrder !== undefined ? updatedNode.childrenOrder : node.childrenOrder,
+            // Do not overwrite 'children' explicitly here, as the API might omit them on update.
+            // If the API returns a 'children' array, it will be handled by the spread if it's explicitly present,
+            // but in this fix, we are assuming it's absent and we want to preserve the existing one.
+            // The existing 'children' array will be implicitly preserved because it's not present in updatedNode.
+          };
         }
         if (node.children && node.children.length > 0) {
           return {
@@ -108,7 +121,13 @@ export const useNodeStore = create((set) => ({
     const newNodes = updateNodeInTree(state.nodes);
     let newSelectedNode = state.selectedNode;
     if (state.selectedNode && state.selectedNode.id === updatedNode.id) {
-      newSelectedNode = { ...state.selectedNode, ...updatedNode };
+      newSelectedNode = {
+        ...state.selectedNode,
+        name: updatedNode.name !== undefined ? updatedNode.name : state.selectedNode.name,
+        contents: updatedNode.contents !== undefined ? updatedNode.contents : state.selectedNode.contents,
+        parentId: updatedNode.parentId !== undefined ? updatedNode.parentId : state.selectedNode.parentId,
+        childrenOrder: updatedNode.childrenOrder !== undefined ? updatedNode.childrenOrder : state.selectedNode.childrenOrder,
+      };
     }
     return { nodes: newNodes, selectedNode: newSelectedNode };
   }),
