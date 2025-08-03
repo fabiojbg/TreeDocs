@@ -233,7 +233,7 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
           </div>
         </div>
         
-        <div className="mt-2 text-sm text-gray-500">
+        <div className="mt-2 text-sm text-gray-400">
           <span>Created: {new Date(node.createdOn).toLocaleDateString()}</span>
           {node.updatedOn && (
             <span className="ml-4">Updated: {new Date(node.updatedOn).toLocaleDateString()}</span>
