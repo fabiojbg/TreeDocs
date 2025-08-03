@@ -77,11 +77,9 @@ export default function DashboardPage() {
   }, [nodeEditorRef]);
 
   const handleLogout = useCallback(async () => {
-    await handleNavigation(() => {
-      logout();
-      navigate('/login');
-    });
-  }, [logout, navigate, handleNavigation]);
+    logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
   if (!user) {
     return (
