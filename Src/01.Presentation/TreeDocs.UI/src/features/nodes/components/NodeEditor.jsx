@@ -31,6 +31,7 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
       setName(node.name || '')
       setContents(node.contents || '')
       setIsDirty(false)
+      setSaving(false)
     }
     return () => {
       isMounted.current = false
@@ -286,7 +287,6 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
           onFocus={() => onEditorFocusChange && onEditorFocusChange(true)}
           onBlur={() => {
             onEditorFocusChange && onEditorFocusChange(false);
-            handleSave();
           }}
           onKeyDown={(event) => {
             if (event.key === 'Delete') {
