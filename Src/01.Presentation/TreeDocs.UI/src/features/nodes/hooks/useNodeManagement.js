@@ -4,7 +4,7 @@ import { useNodeStore } from '../store/nodeStore';
 
 window.__treeNeedsReloading = true;
 export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditorRef as a parameter
-  const { nodes, selectedNode, loading, error, openNodes, setNodes, setSelectedNode, setLoading, setError, addNode, updateNode, deleteNode, toggleNode: toggleNodeStore, moveNode, fetchNodeById, updateNodeChildrenOrder } = useNodeStore();
+  const { nodes, selectedNode, loading, error, openNodes, setNodes, setSelectedNode, setLoading, setError, addNode, updateNode, deleteNode, toggleNode: toggleNodeStore, moveNode, fetchNodeById, updateNodeChildrenOrder, initializeAllNodesAsOpen } = useNodeStore();
 
   const findNodeInTree = useCallback((currentNodes, nodeId, callback) => {
     for (let i = 0; i < currentNodes.length; i++) {
@@ -55,6 +55,16 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     return visible;
   }, []);
 
+  const processNodesToOpen = (nodesArray, nodesToOpen = {}) => {
+    nodesArray.forEach(node => {
+      nodesToOpen[node.id] = true;
+      if (node.children && node.children.length > 0) {
+        processNodesToOpen(node.children, nodesToOpen);
+      }
+    });
+    return nodesToOpen;
+  };
+
   const loadUserNodes = useCallback(async () => {
     if( !window.__treeNeedsReloading )
       return;
@@ -63,6 +73,10 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     try {
       const data = await nodeService.getUserNodes();
       setNodes(data.nodes || []);
+      if (data.nodes && data.nodes.length > 0) {
+        const allNodesToOpen = processNodesToOpen(data.nodes);
+        initializeAllNodesAsOpen(allNodesToOpen);
+      }
       window.__treeNeedsReloading = false;
       if (!selectedNode && data.nodes && data.nodes.length > 0) {
         setSelectedNode(data.nodes[0]);
@@ -73,7 +87,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     } finally {
       setLoading(false);
     }
-  }, [selectedNode, setNodes, setSelectedNode, setLoading, setError]);
+  }, [selectedNode, setNodes, setSelectedNode, setLoading, setError, initializeAllNodesAsOpen]);
 
   useEffect(() => {
     if (user && user.token) {

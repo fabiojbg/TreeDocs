@@ -48,6 +48,13 @@ export const useNodeStore = create((set) => ({
     },
   })),
 
+  initializeAllNodesAsOpen: (nodesToOpen) => set((state) => ({
+    openNodes: {
+      ...state.openNodes,
+      ...nodesToOpen,
+    },
+  })),
+
   fetchNodeById: async (nodeId) => {
     set({ loading: true });
     try {
