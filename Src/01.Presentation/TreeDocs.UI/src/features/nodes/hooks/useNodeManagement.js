@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef } from 'react'; // Import useRef
 import { nodeService } from '../services/nodeService';
 import { useNodeStore } from '../store/nodeStore';
 
-var __treeNeedsReloading = true;
+window.__treeNeedsReloading = true;
 export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditorRef as a parameter
   const { nodes, selectedNode, loading, error, openNodes, setNodes, setSelectedNode, setLoading, setError, addNode, updateNode, deleteNode, toggleNode: toggleNodeStore, moveNode, fetchNodeById, updateNodeChildrenOrder } = useNodeStore();
 
@@ -56,14 +56,14 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
   }, []);
 
   const loadUserNodes = useCallback(async () => {
-    if( !__treeNeedsReloading )
+    if( !window.__treeNeedsReloading )
       return;
     setLoading(true);
     setError(null);
     try {
       const data = await nodeService.getUserNodes();
       setNodes(data.nodes || []);
-      __treeNeedsReloading = false;
+      window.__treeNeedsReloading = false;
       if (!selectedNode && data.nodes && data.nodes.length > 0) {
         setSelectedNode(data.nodes[0]);
       }
@@ -117,7 +117,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
       const newNodeId = createResponse.id;
       const detailedNewNodeResponse = await nodeService.getNodeById(newNodeId);
       const detailedNewNode = detailedNewNodeResponse.node;
-      __treeNeedsReloading = true;
+      window.__treeNeedsReloading = true;
       addNode(detailedNewNode);
       setSelectedNode(detailedNewNode); 
       return detailedNewNode;
@@ -144,7 +144,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     setError(null);
     try {
       await nodeService.deleteNode(nodeId);
-      __treeNeedsReloading = true;
+      window.__treeNeedsReloading = true;
       deleteNode(nodeId);
     } catch (err) {
       console.error('Error deleting node:', err);
@@ -215,7 +215,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
             return;
         }
         
-        __treeNeedsReloading = true;
+        window.__treeNeedsReloading = true;
 
         const newParentId = dropPosition === 'inside' ? targetNode.id : targetNode.parentId;
         const parentIdChanged = draggedNode.parentId !== newParentId;
