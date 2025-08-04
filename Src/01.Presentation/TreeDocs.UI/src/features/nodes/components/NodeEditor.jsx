@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
 import ReactQuill from 'react-quill'
+import Quill from 'quill'
 import 'react-quill/dist/quill.snow.css'
+import './NodeEditor.css'
 import toast from 'react-hot-toast'
+
+// Register custom fonts with Quill
+const Font = Quill.import('formats/font');
+Font.whitelist = [
+  'arial', 'times-new-roman', 'courier-new', 'georgia', 
+  'verdana', 'comic-sans-ms', 'impact', 'trebuchet-ms', 'lucida-console'
+];
+Quill.register(Font, true);
 
 // NOTE: The "findDOMNode is deprecated" warning originates from the ReactQuill library
 // (https://github.com/zenoamaro/react-quill/issues/1126).
@@ -251,20 +261,26 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
           modules={{
             toolbar: [
               [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+              [{ 'font': ['arial', 'times-new-roman', 'courier-new', 'georgia', 'verdana', 'comic-sans-ms', 'impact', 'trebuchet-ms', 'lucida-console'] }],
+              [{ 'size': ['small', false, 'large', 'huge'] }],
+              [{ 'color': [] }, { 'background': [] }], 
               ['bold', 'italic', 'underline', 'strike'],
               [{ 'list': 'ordered'}, { 'list': 'bullet' }],
               [{ 'indent': '-1'}, { 'indent': '+1' }],
               [{ 'align': [] }],
-              ['link', 'image', 'code-block'],
+              ['link', 'image', 'code-block', 'blockquote'],
               ['clean']
             ]
           }}
           formats={[
             'header',
+            'font',
+            'size',
+            'color', 'background',
             'bold', 'italic', 'underline', 'strike',
             'list', 'bullet', 'indent',
             'align',
-            'link', 'image'
+            'link', 'image', 'code-block', 'blockquote'
           ]}
           placeholder="Start writing your note here..."
           onFocus={() => onEditorFocusChange && onEditorFocusChange(true)}

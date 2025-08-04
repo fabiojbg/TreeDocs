@@ -1,0 +1,125 @@
+/* Custom styles for ReactQuill editor font selection */
+
+/* Add custom fonts to the font dropdown */
+.ql-snow .ql-picker.ql-font .ql-picker-label::before {
+  content: 'Font';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="arial"]::before {
+  content: 'Arial';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="times-new-roman"]::before {
+  content: 'Times New Roman';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="courier-new"]::before {
+  content: 'Courier New';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="georgia"]::before {
+  content: 'Georgia';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="verdana"]::before {
+  content: 'Verdana';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="comic-sans-ms"]::before {
+  content: 'Comic Sans MS';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="impact"]::before {
+  content: 'Impact';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="trebuchet-ms"]::before {
+  content: 'Trebuchet MS';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="lucida-console"]::before {
+  content: 'Lucida Console';
+}
+
+/* Define font options in the dropdown */
+.ql-font-arial {
+  font-family: Arial, sans-serif !important;
+}
+
+.ql-font-times-new-roman {
+  font-family: 'Times New Roman', serif !important;
+}
+
+.ql-font-courier-new {
+  font-family: 'Courier New', monospace !important;
+}
+
+.ql-font-georgia {
+  font-family: Georgia, serif !important;
+}
+
+.ql-font-verdana {
+  font-family: Verdana, sans-serif !important;
+}
+
+.ql-font-comic-sans-ms {
+  font-family: 'Comic Sans MS', cursive !important;
+}
+
+.ql-font-impact {
+  font-family: Impact, sans-serif !important;
+}
+
+.ql-font-trebuchet-ms {
+  font-family: 'Trebuchet MS', sans-serif !important;
+}
+
+.ql-font-lucida-console {
+  font-family: 'Lucida Console', monospace !important;
+}
+
+/* Apply the selected font to the editor content */
+.ql-editor .ql-font-arial {
+  font-family: Arial, sans-serif !important;
+}
+
+.ql-editor .ql-font-times-new-roman {
+  font-family: 'Times New Roman', serif !important;
+}
+
+.ql-editor .ql-font-courier-new {
+  font-family: 'Courier New', monospace !important;
+}
+
+.ql-editor .ql-font-georgia {
+  font-family: Georgia, serif !important;
+}
+
+.ql-editor .ql-font-verdana {
+  font-family: Verdana, sans-serif !important;
+}
+
+.ql-editor .ql-font-comic-sans-ms {
+  font-family: 'Comic Sans MS', cursive !important;
+}
+
+.ql-editor .ql-font-impact {
+  font-family: Impact, sans-serif !important;
+}
+
+.ql-editor .ql-font-trebuchet-ms {
+  font-family: 'Trebuchet MS', sans-serif !important;
+}
+
+.ql-editor .ql-font-lucida-console {
+  font-family: 'Lucida Console', monospace !important;
+}
+
+/* Ensure font selection persists in the toolbar */
+.ql-toolbar .ql-picker-label.ql-active {
+  color: #06c;
+}
+
+.ql-toolbar .ql-picker-item.ql-selected {
+  color: #06c;
+}
