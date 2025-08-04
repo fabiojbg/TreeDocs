@@ -6,7 +6,11 @@ export default {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      spacing: {
+        '1': '0.15rem', // Redefining py-1 from default 0.25rem to 0.5rem
+      },
+    },
   },
   plugins: [],
 }
