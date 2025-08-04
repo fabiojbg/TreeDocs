@@ -255,7 +255,7 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
               [{ 'list': 'ordered'}, { 'list': 'bullet' }],
               [{ 'indent': '-1'}, { 'indent': '+1' }],
               [{ 'align': [] }],
-              ['link', 'image'],
+              ['link', 'image', 'code-block'],
               ['clean']
             ]
           }}
