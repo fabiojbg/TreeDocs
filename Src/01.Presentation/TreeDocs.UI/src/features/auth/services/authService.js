@@ -6,6 +6,7 @@ export const authService = {
       userEmail: email,
       password: password
     })
+    window.__treeNeedsReloading = true;
     return response.data
   },
 
@@ -37,5 +38,11 @@ export const authService = {
       newPassword: newPassword
     })
     return response.data
+  },
+
+  logout() {
+    // Perform any client-side logout cleanup here, e.g., clearing tokens
+    // This function is called when the user initiates a logout.
+    window.__treeNeedsReloading = true;
   }
 }
