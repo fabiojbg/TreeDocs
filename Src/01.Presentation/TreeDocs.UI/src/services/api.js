@@ -1,7 +1,8 @@
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-const API_BASE_URL = '/api'
+const API_BASE_URL = import.meta.env.VITE_TREE_DOCS_SERVICE_URL ? (import.meta.env.VITE_TREE_DOCS_SERVICE_URL + '/api') 
+                                                                : 'http://localhost:3000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

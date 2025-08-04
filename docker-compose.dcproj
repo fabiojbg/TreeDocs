@@ -14,7 +14,7 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
-    <None Include="Dockerfile_TreeDocsClientApp" />
+    <None Include="Dockerfile_TreeDocsUI" />
     <None Include="Dockerfile_TreeDocsService" />
   </ItemGroup>
 </Project>

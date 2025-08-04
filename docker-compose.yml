@@ -18,16 +18,20 @@ services:
     restart: unless-stopped    
 
 
-  treedocs_clientapp:
-    image: ${DOCKER_REGISTRY-}treedocsclientapp
+  treedocs_ui:
+    image: ${DOCKER_REGISTRY-}treedocsui
     build:
       context: .
-      dockerfile: Dockerfile_TreeDocsClientApp
+      dockerfile: Dockerfile_TreeDocsUI
+      args:
+        - VITE_TREE_DOCS_SERVICE_URL=http://localhost:5100
+    environment:
+      - VITE_TREE_DOCS_SERVICE_URL=http://localhost:5100
     depends_on:
       - treedocs_service
     ports:
-      - "5555:80"
-    restart: unless-stopped    
+      - "5200:80"
+    restart: unless-stopped
 
 
   redis:
@@ -50,4 +54,3 @@ services:
     ports:
       - "5342:80"
     restart: unless-stopped
-      
