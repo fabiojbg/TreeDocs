@@ -123,3 +123,51 @@
 .ql-toolbar .ql-picker-item.ql-selected {
   color: #06c;
 }
+
+/* Font size styles for the ReactQuill editor content */
+.ql-editor {
+  font-size: 16px; /* Base size for "Normal" */
+}
+
+.ql-editor .ql-size-small {
+  font-size: 13px !important;
+}
+
+.ql-editor .ql-size-large {
+  font-size: 20px !important;
+}
+
+.ql-editor .ql-size-huge {
+  font-size: 28px !important;
+}
+
+/* Font size styles for the ReactQuill editor heading options */
+.ql-snow .ql-editor h1 {
+  font-size: 24px !important;
+  font-weight: bold !important;
+}
+
+.ql-snow .ql-editor h2 {
+  font-size: 20px !important;
+  font-weight: bold !important;
+}
+
+.ql-snow .ql-editor h3 {
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+
+.ql-snow .ql-editor h4 {
+  font-size: 16px !important;
+  font-weight: bold !important;
+}
+
+.ql-snow .ql-editor h5 {
+  font-size: 14px !important;
+  font-weight: bold !important;
+}
+
+.ql-snow .ql-editor h6 {
+  font-size: 12px !important;
+  font-weight: bold !important;
+}
