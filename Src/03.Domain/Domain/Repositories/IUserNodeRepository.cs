@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using TreeDocs.Domain.Entities;
+using TreeNotes.Domain.Entities;
 
-namespace TreeDocs.Domain.Repositories
+namespace TreeNotes.Domain.Repositories
 {
     public interface IUserNodeRepository
     {

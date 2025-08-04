@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\06.Authorization\TreeDocs.AuthDomain.Persistence.MongoDb\AuthDomain.Persistence.MongoDb.csproj" />
-    <ProjectReference Include="..\..\06.Authorization\TreeDocs.AuthDomain\Auth.Domain.csproj" />
+    <ProjectReference Include="..\..\06.Authorization\TreeNotes.AuthDomain.Persistence.MongoDb\AuthDomain.Persistence.MongoDb.csproj" />
+    <ProjectReference Include="..\..\06.Authorization\TreeNotes.AuthDomain\Auth.Domain.csproj" />
   </ItemGroup>
 
 </Project>

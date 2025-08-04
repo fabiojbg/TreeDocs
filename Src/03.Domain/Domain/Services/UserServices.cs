@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeDocs.Domain.Services
+namespace TreeNotes.Domain.Services
 {
     public enum Privilege
     {

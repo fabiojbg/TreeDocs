@@ -1,6 +1,6 @@
 ﻿using Auth.Domain.Entities;
 
-namespace TreeDocs.Domain.Services
+namespace TreeNotes.Domain.Services
 {
     public interface IUserServices
     {

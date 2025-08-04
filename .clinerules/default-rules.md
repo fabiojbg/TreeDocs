@@ -12,8 +12,8 @@ At the start, the app starts with a root node. The user can add child nodes usin
 
 - To know how the project is structured, read the sections 'Simplified Project Folder Structure' and 'Module Responsibilities' below. You must keep these sections up to date with changes in the project.
 - The main service APIs are documented in these files
-    1) '.clinerules/TreedocsServices_NodesAPI.md': APIs operations with nodes.
-    2) '.clinerules/TreedocsServices_UserAPI.md': APIs for user management.
+    1) '.clinerules/TreenotesServices_NodesAPI.md': APIs operations with nodes.
+    2) '.clinerules/TreenotesServices_UserAPI.md': APIs for user management.
 - Pay attention to the MCP Tools available to use them whenever necessary
 - This project is being develop in a windows operating system, when emitting multiple commands in a single line to the terminal, use a semi-colon to separate them (ex: 'cd newFolder; npm run dev')
 
@@ -24,12 +24,12 @@ At the start, the app starts with a root node. The user can add child nodes usin
 # Code Style & Patterns
 
 - This project is created uses C# and .NET 6.0 and uses Domain Driven Design / Clean architecture
-- The project is API-First. The TreeDocs.Service module is the project main service with all service APIs. This module does not have UI interfaces
+- The project is API-First. The TreeNotes.Service module is the project main service with all service APIs. This module does not have UI interfaces
 - Prefer use object oriented approach
 - Project frameworkds & Patterns
     > Clean Architecture
     > Domain Driven-Driven Design (DDD)
-    > API First (TreeDocs.Service module)
+    > API First (TreeNotes.Service module)
     > JWT Authentication tokens
     > MediatR/CQRS
     > Mongo DBMongoDB for Databases
@@ -43,7 +43,7 @@ At the start, the app starts with a root node. The user can add child nodes usin
 The easiest way to execute this app is by using the Docker Compose files in the project´s root directory. Just use the command **"docker compose up"** to build and run all project services and dependencies, like MongoDB, Redis, and Seq.
 Once running, open your browser and type http://localhost:5555.
 
-For development of the React UI, navigate to the TreeDocs.UI directory and run:
+For development of the React UI, navigate to the TreeNotes.UI directory and run:
 ```bash
 npm install
 npm run dev
@@ -62,17 +62,17 @@ You must mantain this structure updated in case of any change in it or in file´
 ├── docker-compose.dcproj
 ├── docker-compose.override.yml
 ├── docker-compose.yml
-├── Dockerfile_TreeDocsClientApp
-├── Dockerfile_TreeDocsService
+├── Dockerfile_TreeNotesClientApp
+├── Dockerfile_TreeNotesService
 ├── README.md
-├── TreeDocs.sln
+├── TreeNotes.sln
 ├── Src/ # Source code
 │   ├── 01.Presentation/ # Presentation layer - UI and API endpoints
-│   │   ├── TreeDocs.ClientApp/ # Old Client-side web application (Blazor). Replaced by TreeDocs.UI
+│   │   ├── TreeNotes.ClientApp/ # Old Client-side web application (Blazor). Replaced by TreeNotes.UI
 │   │   │   ├── _Imports.razor
 │   │   │   ├── App.razor
 │   │   │   ├── Program.cs
-│   │   │   ├── TreeDocs.ClientApp.csproj
+│   │   │   ├── TreeNotes.ClientApp.csproj
 │   │   │   ├── Components/ # Reusable UI components
 │   │   │   ├── Model/ # Client-side data models
 │   │   │   ├── Nginx/ # Nginx configuration for the client app
@@ -81,7 +81,7 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   ├── Services/ # Client-side services for data interaction
 │   │   │   └── Shared/ # Shared UI elements and layouts
 │   │   │   └── wwwroot/ # Static assets (CSS, JS, images)
-│   │   ├── TreeDocs.UI/ # New React-based client application for hierarchical note-taking functionality
+│   │   ├── TreeNotes.UI/ # New React-based client application for hierarchical note-taking functionality
 │   │   │   ├── public/ # Static assets and main HTML entry point (index.html)
 │   │   │   ├── src/ # Application source code
 │   │   │   │   ├── components/ # Reusable UI components (general, non-feature specific)
@@ -120,15 +120,15 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   ├── README.md # UI-specific documentation and development setup
 │   │   │   ├── tailwind.config.js # Tailwind CSS theme and plugin configuration
 │   │   │   └── vite.config.js # Vite build settings and API proxy configuration
-│   │   └── TreeDocs.Service/ # Backend API service. Has no UI
+│   │   └── TreeNotes.Service/ # Backend API service. Has no UI
 │   │       ├── appsettings.Development.json
 │   │       ├── appsettings.json
 │   │       ├── Program.cs
 │   │       ├── Startup.cs
-│   │       ├── TreeDocs.Service.csproj
+│   │       ├── TreeNotes.Service.csproj
 │   │       ├── ApiController/
 │   │       ├── Docs/
-│   │           └── TreeDocsServices_API.md  # main project service API Documentation
+│   │           └── TreeNotesServices_API.md  # main project service API Documentation
 │   │       ├── Authorization/ # API authorization logic
 │   │       ├── Controllers/ # Main project API controllers
 │   │       ├── Filters/ # API filters (e.g., for error handling, validation)
@@ -142,15 +142,15 @@ You must mantain this structure updated in case of any change in it or in file´
 │   ├── 03.Domain/ # Domain layer - core business entities and rules
 │   │   ├── Domain/ # Domain entities, value objects, and domain services
 │   │   │   ├── DependencyInjection.cs
-│   │   │   ├── TreeDocs.Domain.csproj
+│   │   │   ├── TreeNotes.Domain.csproj
 │   │   │   ├── Commands/ # Domain-specific commands (e.g., for MediatR)
 │   │   │   ├── Constants/ # Domain-specific constants
 │   │   │   ├── Repositories/ # Interfaces for domain repositories
 │   │   │   └── Services/ # Domain services
 │   │   ├── Shared/ # Shared domain types (if any)
-│   │   │   └── TreeDocs.Shared/
-│   │   └── TreeDocs.Domain.RequestResponses/ # DTOs for domain requests and responses
-│   │       ├── TreeDocs.Domain.RequestResponses.csproj
+│   │   │   └── TreeNotes.Shared/
+│   │   └── TreeNotes.Domain.RequestResponses/ # DTOs for domain requests and responses
+│   │       ├── TreeNotes.Domain.RequestResponses.csproj
 │   │       ├── Constants/
 │   │       ├── Entities/ # DTO entities
 │   │       ├── Enums/ # DTO enums
@@ -176,14 +176,14 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   ├── Configuration/
 │   │   │   ├── Extensions/
 │   │   │   └── Repository/
-│   │   ├── TreeDocs.Data.Services/ # Data services for TreeDocs entities
+│   │   ├── TreeNotes.Data.Services/ # Data services for TreeNotes entities
 │   │   │   ├── IBasicService.cs
 │   │   │   ├── INodeServices.cs
 │   │   │   ├── NodeServices.cs
-│   │   │   ├── TreeDocs.Data.Services.csproj
+│   │   │   ├── TreeNotes.Data.Services.csproj
 │   │   │   └── RepositoryInterfaces/
-│   │   └── TreeDocs.Db.Entities/ # Database entities/models
-│   │       ├── TreeDocs.Db.Entities.csproj
+│   │   └── TreeNotes.Db.Entities/ # Database entities/models
+│   │       ├── TreeNotes.Db.Entities.csproj
 │   │       ├── User.cs
 │   │       ├── UserNode.cs
 │   ├── 06.Authorization/ # Authorization layer - security and user management
@@ -192,7 +192,7 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   ├── Constants.cs
 │   │   │   ├── Requests/
 │   │   │   └── Responses/
-│   │   ├── TreeDocs.AuthDomain/ # Core authentication domain logic
+│   │   ├── TreeNotes.AuthDomain/ # Core authentication domain logic
 │   │   │   ├── Auth.Domain.csproj
 │   │   │   ├── DependencyInjection.cs
 │   │   │   ├── Commands/
@@ -200,7 +200,7 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   ├── Entities/
 │   │   │   ├── Repository/
 │   │   │   └── Services/
-│   │   └── TreeDocs.AuthDomain.Persistence.MongoDb/ # MongoDB persistence for authentication
+│   │   └── TreeNotes.AuthDomain.Persistence.MongoDb/ # MongoDB persistence for authentication
 │   │       ├── AuthDomain.Persistence.MongoDb.csproj
 │   │       ├── DependencyInjection.cs
 │   │       ├── Configuration/
@@ -209,9 +209,9 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │       ├── Repositories/
 │   │       └── UnitOfWork/
 │   ├── 10.Common/ # Common utilities and contracts shared across layers
-│   │   └── TreeDocs.Service.Contracts/ # API contracts/DTOs for services
+│   │   └── TreeNotes.Service.Contracts/ # API contracts/DTOs for services
 │   │       ├── RequestResult.cs
-│   │       ├── TreeDocs.Service.Contracts.csproj
+│   │       ├── TreeNotes.Service.Contracts.csproj
 │   │       ├── Authentication/
 │   ├── 11.Sdk/ # SDK components for client applications
 │   │   ├── Apps.Blazor.Components/ # Reusable Blazor UI components for SDK
@@ -242,25 +242,25 @@ You must mantain this structure updated in case of any change in it or in file´
 
 # Module Responsibilities
 
-- **TreeDocs.Service**: Main backend service providing all service APIs. API-first approach, no UI.
-- **TreeDocs.ClientApp**: Client-side Blazor web application for user interaction. (Deprecated - will be replaced by TreeDocs.UI)
-- **TreeDocs.UI**: New React-based client application for user interaction with hierarchical note-taking functionality. Built with React, Tailwind CSS, and Vite.
+- **TreeNotes.Service**: Main backend service providing all service APIs. API-first approach, no UI.
+- **TreeNotes.ClientApp**: Client-side Blazor web application for user interaction. (Deprecated - will be replaced by TreeNotes.UI)
+- **TreeNotes.UI**: New React-based client application for user interaction with hierarchical note-taking functionality. Built with React, Tailwind CSS, and Vite.
 - **02.Application (Application layer)**: Orchestrates business logic, handles use cases, and coordinates between domain and persistence layers.
 - **03.Domain (Domain layer)**: Contains core business entities, aggregates, value objects, and domain services. Defines business rules and logic.
-  - **TreeDocs.Domain**: Core domain models and logic.
-  - **TreeDocs.Domain.RequestResponses**: Defines DTOs for requests and responses related to domain operations.
+  - **TreeNotes.Domain**: Core domain models and logic.
+  - **TreeNotes.Domain.RequestResponses**: Defines DTOs for requests and responses related to domain operations.
 - **04.Persistence (Persistence layer)**: Deals with data storage and retrieval. Contains repository implementations and database contexts.
   - **Audit.Persistence.MongoDb**: Handles audit logging specific to MongoDB.
   - **Db.Services.Interfaces**: Defines interfaces for generic database services and unit of work patterns.
   - **MongoDb.Common**: Provides common utilities and base classes for MongoDB interactions.
-  - **TreeDocs.Data.Services**: Specific data services for TreeDocs entities, implementing repository interfaces.
-  - **TreeDocs.Db.Entities**: Defines the database entities (data models).
+  - **TreeNotes.Data.Services**: Specific data services for TreeNotes entities, implementing repository interfaces.
+  - **TreeNotes.Db.Entities**: Defines the database entities (data models).
 - **06.Authorization (Authorization layer)**: Manages user authentication and authorization concerns.
   - **Auth.Domain.RequestsResponses**: DTOs for authentication-related requests and responses.
-  - **TreeDocs.AuthDomain**: Core domain logic for authentication and user management.
-  - **TreeDocs.AuthDomain.Persistence.MongoDb**: MongoDB persistence implementation for authorization data.
+  - **TreeNotes.AuthDomain**: Core domain logic for authentication and user management.
+  - **TreeNotes.AuthDomain.Persistence.MongoDb**: MongoDB persistence implementation for authorization data.
 - **10.Common**: Contains shared contracts and utilities used across different layers.
-  - **TreeDocs.Service.Contracts**: Defines common request/response contracts for service APIs.
+  - **TreeNotes.Service.Contracts**: Defines common request/response contracts for service APIs.
 - **11.Sdk**: Provides SDK components for client applications.
   - **Apps.Blazor.Components**: Reusable UI components built with Blazor for the SDK.
   - **Apps.Sdk**: Core SDK functionalities, including caching, exception handling, and middleware.
@@ -269,13 +269,13 @@ You must mantain this structure updated in case of any change in it or in file´
 - **99.Tests**: Contains all test projects for the solution.
   - **AuthDomain.Tests**: Tests specifically for the Authorization domain.
 
-## TreeDocs.Service - ApiControllers 
-The TreeDocs.Service module is the API-first, backend service that provides all REST APIs for the service. 
-This module has no user interfaces and its APIs are documentes in file TreeDocsServices_API.md in folder \Src\01.Presentation\TreeDocs.Service\ApiDocs
+## TreeNotes.Service - ApiControllers 
+The TreeNotes.Service module is the API-first, backend service that provides all REST APIs for the service. 
+This module has no user interfaces and its APIs are documentes in file TreeNotesServices_API.md in folder \Src\01.Presentation\TreeNotes.Service\ApiDocs
 The main APIs are:
 
 ### `ApiBaseController.cs`
-**Responsibility**: Foundational base controller that provides common infrastructure for all API controllers in the TreeDocs.Service project. This controller:
+**Responsibility**: Foundational base controller that provides common infrastructure for all API controllers in the TreeNotes.Service project. This controller:
 - **Authentication Context**: Provides access to the authenticated user via `TokenService.GetAuthenticatedUser()`
 - **Dependency Resolution**: Manages lazy-loaded core services including:
   - `IMediator` - Command/Query handling via MediatR pattern

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeDocs.Domain.Services;
+using TreeNotes.Domain.Services;
 
-namespace TreeDocs.Domain
+namespace TreeNotes.Domain
 {
     public static class DependencyInjection
     {

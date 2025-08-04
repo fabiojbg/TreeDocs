@@ -8,12 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TreeDocs.Domain.Entities;
-using TreeDocs.Domain.Repositories;
-using TreeDocs.Domain.RequestsResponses;
-using TreeDocs.Domain.Services;
+using TreeNotes.Domain.Entities;
+using TreeNotes.Domain.Repositories;
+using TreeNotes.Domain.RequestsResponses;
+using TreeNotes.Domain.Services;
 
-namespace TreeDocs.Domain.Handlers
+namespace TreeNotes.Domain.Handlers
 {
     public class GetUserNodeHandler : Notifiable, IRequestHandler<GetUserNodeRequest, RequestResult<GetUserNodeResponse>>
     {

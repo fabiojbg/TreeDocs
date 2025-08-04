@@ -1,5 +1,5 @@
 ﻿using Apps.Sdk;
-using TreeDocs.Domain.Entities;
+using TreeNotes.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Repository.MongoDb.DbModels;
 using Repository.MongoDb.Repositories;
@@ -7,11 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using TreeDocs.Domain.Repositories;
+using TreeNotes.Domain.Repositories;
 using Repository.MongoDb;
 using Apps.Sdk.DependencyInjection;
 
-namespace TreeDocs.Repository.MongoDb
+namespace TreeNotes.Repository.MongoDb
 {
     public static class DependencyInjection
     {

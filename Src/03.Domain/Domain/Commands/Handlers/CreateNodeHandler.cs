@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TreeDocs.Domain.Entities;
-using TreeDocs.Domain.Repositories;
+using TreeNotes.Domain.Entities;
+using TreeNotes.Domain.Repositories;
 using Domain.Shared;
-using TreeDocs.Domain.RequestsResponses;
+using TreeNotes.Domain.RequestsResponses;
 using Auth.Domain.Services;
 
-namespace TreeDocs.Domain.Handlers
+namespace TreeNotes.Domain.Handlers
 {
     public class CreateNodeHandler : Notifiable,  IRequestHandler<CreateNodeRequest, RequestResult<CreateNodeResponse>>
     {

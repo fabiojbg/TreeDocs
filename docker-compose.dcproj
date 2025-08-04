@@ -6,7 +6,7 @@
     <ProjectGuid>72aff7d8-863c-4cd7-9d49-556c4e7eec85</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/api/Ping%3fecho=pong</DockerServiceUrl>
-    <DockerServiceName>treedocs.service</DockerServiceName>
+    <DockerServiceName>treenotes.service</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">
@@ -14,7 +14,7 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
-    <None Include="Dockerfile_TreeDocsUI" />
-    <None Include="Dockerfile_TreeDocsService" />
+    <None Include="Dockerfile_TreeNotesUI" />
+    <None Include="Dockerfile_TreeNotesService" />
   </ItemGroup>
 </Project>

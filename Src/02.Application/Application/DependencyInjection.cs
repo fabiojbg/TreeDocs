@@ -9,7 +9,7 @@ using System.Reflection;
 using MediatR;
 using Application.Common.Behaviours;
 using Auth.Domain.Services;
-using TreeDocs.Domain.Handlers;
+using TreeNotes.Domain.Handlers;
 using Auth.Domain.Handlers;
 using Application.Common;
 using Apps.Sdk.DependencyInjection;
@@ -22,8 +22,8 @@ namespace Application
         {
             Auth.Domain.DependencyInjection.RegisterDependencies(builder, config);
             Auth.Domain.Persistence.MongoDb.DependencyInjection.RegisterRepositories(builder, config);
-            TreeDocs.Repository.MongoDb.DependencyInjection.RegisterRepositories(builder, config);
-            TreeDocs.Domain.DependencyInjection.RegisterDependencies(builder, config);
+            TreeNotes.Repository.MongoDb.DependencyInjection.RegisterRepositories(builder, config);
+            TreeNotes.Domain.DependencyInjection.RegisterDependencies(builder, config);
 
             Audit.Persistence.MongoDb.DependencyInjection.RegisterDependencies(builder, config);
         }

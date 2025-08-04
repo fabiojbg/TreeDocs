@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using Repository.MongoDb.DbModels;
 using System;
 using System.Threading.Tasks;
-using TreeDocs.Domain.Repositories;
+using TreeNotes.Domain.Repositories;
 
 namespace Repository.MongoDb
 {

@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\03.Domain\Domain\TreeDocs.Domain.csproj" />
+    <ProjectReference Include="..\..\03.Domain\Domain\TreeNotes.Domain.csproj" />
     <ProjectReference Include="..\..\04.Persistence\Audit.Persistence.MongoDb\Audit.Persistence.MongoDb.csproj" />
     <ProjectReference Include="..\..\04.Persistence\MongoDb\Database.MongoDb\Repository.MongoDb.csproj" />
-    <ProjectReference Include="..\..\06.Authorization\TreeDocs.AuthDomain.Persistence.MongoDb\AuthDomain.Persistence.MongoDb.csproj" />
+    <ProjectReference Include="..\..\06.Authorization\TreeNotes.AuthDomain.Persistence.MongoDb\AuthDomain.Persistence.MongoDb.csproj" />
     <ProjectReference Include="..\..\11.Sdk\Apps.Sdk\Apps.Sdk.Web.csproj" />
   </ItemGroup>
 

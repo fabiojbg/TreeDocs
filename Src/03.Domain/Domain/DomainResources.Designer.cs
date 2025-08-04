@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TreeDocs.Domain {
+namespace TreeNotes.Domain {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TreeDocs.Domain {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TreeDocs.Domain.DomainResources", typeof(DomainResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TreeNotes.Domain.DomainResources", typeof(DomainResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

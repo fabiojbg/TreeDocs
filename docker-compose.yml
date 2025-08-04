@@ -1,11 +1,11 @@
 version: '3.4'
 
 services:
-  treedocs_service:
-    image: ${DOCKER_REGISTRY-}treedocsservice
+  treenotes_service:
+    image: ${DOCKER_REGISTRY-}treenotesservice
     build:
       context: .
-      dockerfile: Dockerfile_TreeDocsService
+      dockerfile: Dockerfile_TreeNotesService
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5100
@@ -18,17 +18,17 @@ services:
     restart: unless-stopped    
 
 
-  treedocs_ui:
-    image: ${DOCKER_REGISTRY-}treedocsui
+  treenotes_ui:
+    image: ${DOCKER_REGISTRY-}treenotesui
     build:
       context: .
-      dockerfile: Dockerfile_TreeDocsUI
+      dockerfile: Dockerfile_TreeNotesUI
       args:
         - VITE_TREE_DOCS_SERVICE_URL=http://localhost:5100
     environment:
       - VITE_TREE_DOCS_SERVICE_URL=http://localhost:5100
     depends_on:
-      - treedocs_service
+      - treenotes_service
     ports:
       - "5200:80"
     restart: unless-stopped

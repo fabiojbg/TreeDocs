@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\03.Domain\Shared\TreeDocs.Shared\Domain.Shared.csproj" />
+    <ProjectReference Include="..\..\03.Domain\Shared\TreeNotes.Shared\Domain.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

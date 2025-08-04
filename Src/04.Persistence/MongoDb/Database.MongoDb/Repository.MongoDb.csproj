@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\03.Domain\Domain\TreeDocs.Domain.csproj" />
+    <ProjectReference Include="..\..\..\03.Domain\Domain\TreeNotes.Domain.csproj" />
     <ProjectReference Include="..\..\..\11.Sdk\Apps.Sdk\Apps.Sdk.Web.csproj" />
   </ItemGroup>
 

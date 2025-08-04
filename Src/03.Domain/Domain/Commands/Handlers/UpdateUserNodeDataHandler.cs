@@ -9,13 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TreeDocs.Domain.Entities;
-using TreeDocs.Domain.Repositories;
-using TreeDocs.Domain.RequestResponses;
-using TreeDocs.Domain.RequestsResponses;
-using TreeDocs.Domain.Services;
+using TreeNotes.Domain.Entities;
+using TreeNotes.Domain.Repositories;
+using TreeNotes.Domain.RequestResponses;
+using TreeNotes.Domain.RequestsResponses;
+using TreeNotes.Domain.Services;
 
-namespace TreeDocs.Domain.Commands.Handlers
+namespace TreeNotes.Domain.Commands.Handlers
 {
 
     public class UpdateUserNodeDataHandler : Notifiable, IRequestHandler<UpdateUserNodeDataRequest, RequestResult<UpdateUserNodeDataResponse>>
