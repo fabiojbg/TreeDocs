@@ -1,6 +1,10 @@
 import React, { memo } from 'react'
+import { useNodeStore } from '../store/nodeStore';
 
-const NodeItem = memo(({ node, level, isExpanded, isSelected, hasChildren, onSelect, onToggle, onContextMenu, onDragStart, onDragOver, onDrop, onDragEnd, onDragEnter, onDragLeave, draggedOverNodeId, dropPositionState }) => {
+const NodeItem = memo(({ node, level, isExpanded, hasChildren, onSelect, onToggle, onContextMenu, onDragStart, onDragOver, onDrop, onDragEnd, onDragEnter, onDragLeave, draggedOverNodeId, dropPositionState }) => {
+  const selectedId = useNodeStore(state => state.selectedNode?.id);
+  const isSelected = node.id === selectedId;
+
   const handleToggle = (e) => {
     e.stopPropagation()
     onToggle(node.id)

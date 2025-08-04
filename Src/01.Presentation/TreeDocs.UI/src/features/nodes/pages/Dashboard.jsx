@@ -122,7 +122,6 @@ export default function DashboardPage() {
             ) : (
               <NodeTree
                 nodes={nodes}
-                selectedNode={selectedNode}
                 onSelect={handleNodeSelect}
                 onCreate={handleNodeCreate}
                 onDelete={handleNodeDelete}

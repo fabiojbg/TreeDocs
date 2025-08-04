@@ -3,7 +3,7 @@ import NodeItem from './NodeItem'
 import { useNodeStore } from '../store/nodeStore';
 import { useNodeDragAndDrop } from '../hooks/useNodeDragAndDrop';
 
-export default function NodeTree({ nodes, selectedNode, onSelect, onCreate, onDelete, onMoveNode }) {
+export default function NodeTree({ nodes, onSelect, onCreate, onDelete, onMoveNode }) {
   const { openNodes, toggleNode: toggleNodeStore } = useNodeStore();
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, node: null });
   
@@ -68,7 +68,6 @@ export default function NodeTree({ nodes, selectedNode, onSelect, onCreate, onDe
 
   const renderNode = useCallback((node, level = 0) => {
     const isExpanded = openNodes[node.id];
-    const isSelected = selectedNode && selectedNode.id === node.id;
     const hasChildren = node.children && node.children.length > 0;
     const isDraggedOver = draggedOverNodeId === node.id;
 
@@ -85,7 +84,6 @@ export default function NodeTree({ nodes, selectedNode, onSelect, onCreate, onDe
           node={node}
           level={level}
           isExpanded={isExpanded}
-          isSelected={isSelected}
           hasChildren={hasChildren}
           onSelect={onSelect}
           onToggle={toggleNode}
@@ -136,7 +134,7 @@ export default function NodeTree({ nodes, selectedNode, onSelect, onCreate, onDe
         )}
       </div>
     )
-  }, [openNodes, selectedNode, onSelect, toggleNode, handleContextMenu, 
+  }, [openNodes, onSelect, toggleNode, handleContextMenu, 
       handleDragStart, handleDragOver, handleDrop, handleDragEnd, 
       handleDragEnter, handleDragLeave, draggedOverNodeId, 
       dropPositionState, draggedNode, nodes]); 

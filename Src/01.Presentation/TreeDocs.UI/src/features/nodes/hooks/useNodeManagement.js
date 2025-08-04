@@ -82,7 +82,6 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
   }, [user, loadUserNodes]);
 
   const handleNodeSelect = useCallback(async (node) => {
-    setLoading(true);
     setError(null);
     
     // Check if the current editor has unsaved changes and save them
@@ -104,10 +103,8 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     } catch (err) {
       setError(`Failed to load node content: ${err.message}`);
       console.error('Error loading node content:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [setSelectedNode, setLoading, setError, nodeEditorRef]); // Add nodeEditorRef to dependencies
+    } 
+  }, [setSelectedNode, setError, nodeEditorRef]); // Add nodeEditorRef to dependencies
 
 
   const handleNodeCreate = useCallback(async (parentId, name, nodeType, contents) => {
