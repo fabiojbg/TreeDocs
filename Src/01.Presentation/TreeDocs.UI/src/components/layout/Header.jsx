@@ -29,6 +29,13 @@ export default function Header({ user, onLogout }) {
                   </p>
                 </div>
               </div>
+
+              <Link
+                to="/change-password"
+                className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+              >
+                Change Password
+              </Link>
               
               <button
                 onClick={onLogout}

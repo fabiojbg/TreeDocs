@@ -27,5 +27,15 @@ export const authService = {
   async getUserByEmail(email) {
     const response = await api.get(`/User/${email}`)
     return response.data
+  },
+
+  async changePassword(userId, userEmail, oldPassword, newPassword) {
+    const response = await api.put('/User/ChangePassword', {
+      userId: userId,
+      userEmail: userEmail,
+      oldPassword: oldPassword,
+      newPassword: newPassword
+    })
+    return response.data
   }
 }
