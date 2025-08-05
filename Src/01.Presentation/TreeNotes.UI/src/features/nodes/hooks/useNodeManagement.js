@@ -121,10 +121,40 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
   }, [setSelectedNode, setError, nodeEditorRef]); // Add nodeEditorRef to dependencies
 
 
+  const generateUniqueNodeName = useCallback((baseName, siblings) => {
+    if (!siblings || siblings.length === 0) {
+      return baseName;
+    }
+
+    const siblingNames = new Set(siblings.map(sibling => sibling.name));
+    let candidateName = baseName;
+    let counter = 2;
+
+    while (siblingNames.has(candidateName)) {
+      candidateName = `${baseName} ${counter}`;
+      counter++;
+    }
+
+    return candidateName;
+  }, []);
+
   const handleNodeCreate = useCallback(async (parentId, name, nodeType, contents) => {
     setError(null);
     try {
-      const createResponse = await nodeService.createNode(parentId, name, nodeType, contents);
+      let parentSiblings = [];
+      if (parentId) {
+        const parent = getNodeByIdFromTree(nodes, parentId);
+        if (parent) {
+          parentSiblings = parent.children || [];
+        }
+      } else {
+        // If parentId is null, siblings are at the root level
+        parentSiblings = nodes;
+      }
+
+      const uniqueName = generateUniqueNodeName(name, parentSiblings);
+
+      const createResponse = await nodeService.createNode(parentId, uniqueName, nodeType, contents);
       const newNodeId = createResponse.id;
       const detailedNewNodeResponse = await nodeService.getNodeById(newNodeId);
       const detailedNewNode = detailedNewNodeResponse.node;
@@ -136,7 +166,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
       console.error('Error creating node:', err);
       throw err;
     }
-  }, [addNode, setSelectedNode, setError]);
+  }, [addNode, setSelectedNode, setError, nodes, getNodeByIdFromTree, generateUniqueNodeName]);
 
   const handleNodeUpdate = useCallback(async (nodeId, updates) => {
     setError(null);
