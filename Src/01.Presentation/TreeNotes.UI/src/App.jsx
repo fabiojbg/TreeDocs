@@ -7,6 +7,7 @@ import DashboardPage from './features/nodes/pages/Dashboard'
 import ChangePasswordPage from './features/auth/pages/ChangePassword'
 import { AuthProvider } from './features/auth/context/AuthContext'
 import { ThemeProvider } from './features/theme/context/ThemeContext'
+import ProtectedRoute from './features/ProtectedRoute'
 
 function App() {
   return (
@@ -17,9 +18,9 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/change-password" element={<ChangePasswordPage />} />
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<ProtectedRoute element={<DashboardPage />} />} />
+              <Route path="/change-password" element={<ProtectedRoute element={<ChangePasswordPage />} />} />
+              <Route path="/" element={<ProtectedRoute element={<DashboardPage />} />} />
             </Routes>
           </div>
           <Toaster />
