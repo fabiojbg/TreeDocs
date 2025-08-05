@@ -12,8 +12,11 @@ namespace Auth.Domain.Persistence.MongoDb
 
         public DatabaseSettings(IConfigurationRoot config)
         {
-            ConnectionString = config.GetValue<string>("NoterAuthenticationDb:ConnectionString");
-            DatabaseName = config.GetValue<string>("NoterAuthenticationDb:DatabaseName");
+            ConnectionString = config.GetValue<string>("TreeNotesAuthenticationDb:ConnectionString");
+            if (String.IsNullOrWhiteSpace(ConnectionString))
+                ConnectionString = config.GetValue<string>("TreeNotesDb:ConnectionString"); // Default to TreeNotesDb if authentication Db not defined
+
+            DatabaseName = config.GetValue<string>("TreeNotesAuthenticationDb:DatabaseName") ?? "TreeNotesDb";
         }
     }
 }

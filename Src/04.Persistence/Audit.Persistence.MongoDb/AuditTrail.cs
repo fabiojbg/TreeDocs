@@ -15,7 +15,10 @@ namespace Audit.Persistence.MongoDb
         public AuditTrail(IConfiguration config)
         {
             var connectionString = config.GetValue<string>("AuditDatabase:ConnectionString");
-            var dbName = config.GetValue<string>("AuditDatabase:DatabaseName");
+            if (String.IsNullOrWhiteSpace(connectionString))
+                connectionString = config.GetValue<string>("TreeNotesDb:ConnectionString"); // User DefaultTreeNotesDb if authentication Db not defined
+
+            var dbName = config.GetValue<string>("AuditDatabase:DatabaseName") ?? "TreeNotesDb";
             _serviceId = config.GetValue<string>("AuditDatabase:ServiceId") ?? "Audit";
 
             _client = new MongoClient(connectionString);

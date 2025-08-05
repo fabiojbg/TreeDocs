@@ -1,0 +1,3 @@
+window._env_ = {
+  TREE_NOTES_SERVICE_URL: "REPLACE_TREE_NOTES_SERVICE_URL"
+};

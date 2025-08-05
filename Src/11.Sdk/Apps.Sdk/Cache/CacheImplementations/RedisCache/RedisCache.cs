@@ -31,7 +31,7 @@ namespace Apps.Sdk.SdkServices.Cache
         public RedisCache(IConfiguration appSettings, ILogger<RedisCache> logger)
         {
             _logger = logger;
-            var redisConfigOptions = appSettings["redis.configuration"];
+            var redisConfigOptions = appSettings.GetValue<string>("redis:configuration");
             _tenant = NO_TENANT;
             _clientService = NO_OWNER;
 

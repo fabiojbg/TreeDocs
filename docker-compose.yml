@@ -1,34 +1,35 @@
-version: '3.4'
-
 services:
   treenotes_service:
     image: ${DOCKER_REGISTRY-}treenotesservice
     build:
-      context: .
       dockerfile: Dockerfile_TreeNotesService
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:5100
+      - TreeNotesDb__ConnectionString=mongodb://admin:12345678a@mongodb:27017
+      - TreeNotesDb__DatabaseName=TreeNotesDb
+      - redis__configuration=redis:6379
+      #optionals:
+      #- TreeNotesAuthenticationDb__ConnectionString=mongodb://admin:12345678a@mongodb:27017
+      #- TreeNotesAuthenticationDb__DatabaseName=TreeNotesUsers
+      #- AuditDatabase__ConnectionString=mongodb://admin:12345678a@mongodb:27017
+      #- AuditDatabase__DatabaseName=TreeNotesAudit
+
     depends_on:
       - redis
       - mongodb
       - seq
     ports:
-      - "5100:5100"
+      - "5100:80"
     restart: unless-stopped    
 
 
   treenotes_ui:
     image: ${DOCKER_REGISTRY-}treenotesui
     build:
-      context: .
       dockerfile: Dockerfile_TreeNotesUI
-      args:
-        - VITE_TREE_DOCS_SERVICE_URL=http://localhost:5100
-    environment:
-      - VITE_TREE_DOCS_SERVICE_URL=http://localhost:5100
+    environment: 
+      - TREE_NOTES_SERVICE_URL=http://localhost:5100
     depends_on:
-      - treenotes_service
+       - treenotes_service
     ports:
       - "5200:80"
     restart: unless-stopped
@@ -51,6 +52,8 @@ services:
     image: "datalust/seq"
     environment:
       - ACCEPT_EULA=Y
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=12345678a
     ports:
       - "5342:80"
     restart: unless-stopped

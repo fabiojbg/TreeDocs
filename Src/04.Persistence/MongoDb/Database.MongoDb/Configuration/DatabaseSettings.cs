@@ -12,8 +12,8 @@ namespace Repository.MongoDb
 
         public DatabaseSettings(IConfiguration config)
         {
-            ConnectionString = config.GetValue<string>("NoterDatabase:ConnectionString");
-            DatabaseName = config.GetValue<string>("NoterDatabase:DatabaseName");
+            ConnectionString = config.GetValue<string>("TreeNotesDb:ConnectionString");
+            DatabaseName = config.GetValue<string>("TreeNotesDb:DatabaseName");
         }
     }
 }
