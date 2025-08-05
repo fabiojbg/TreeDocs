@@ -6,6 +6,7 @@ import NodeEditor from '../components/NodeEditor';
 import { useNavigate } from 'react-router-dom';
 import { useNodeManagement } from '../hooks/useNodeManagement';
 import { useNodeStore } from '../store/nodeStore';
+import classNames from 'classnames';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -13,6 +14,10 @@ export default function DashboardPage() {
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   const nodeEditorRef = useRef(null); // Create a ref for the NodeEditor
   const isMounted = useRef(true); // To track component mount state
+  const [treeWidth, setTreeWidth] = useState(300); // Initial width of the tree panel
+  const [isResizing, setIsResizing] = useState(false);
+  const startX = useRef(0);
+  const initialTreeWidth = useRef(300);
 
   const {
     nodes,
@@ -57,6 +62,41 @@ export default function DashboardPage() {
       }
     };
   }, []);
+
+  const handleMouseDown = useCallback((e) => {
+    setIsResizing(true);
+    startX.current = e.clientX;
+    initialTreeWidth.current = treeWidth;
+  }, [treeWidth]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isResizing) return;
+    const deltaX = e.clientX - startX.current;
+    const newWidth = initialTreeWidth.current + deltaX;
+
+    // Constrain the width between a min and max value
+    const constrainedWidth = Math.max(200, Math.min(600, newWidth));
+    setTreeWidth(constrainedWidth);
+  }, [isResizing]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   // Save before navigation (e.g., clicking a link in Header that might cause Dashboard to unmount)
   const handleNavigation = useCallback(async (navigationCallback) => {
@@ -105,7 +145,13 @@ export default function DashboardPage() {
       
       <div className="flex h-screen pt-16">
         {/* Sidebar - Node Tree */}
-        <div className="w-1/4 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+        <div 
+          className={classNames(
+            "bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto",
+            { 'select-none': isResizing } // Prevent text selection during resize
+          )}
+          style={{ width: `${treeWidth}px`, minWidth: '200px', maxWidth: '600px' }}
+        >
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your Notes</h2>
@@ -136,8 +182,19 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Draggable Resizer */}
+        <div
+          className="w-1.5 bg-gray-300 dark:bg-gray-700 cursor-ew-resize flex-shrink-0"
+          onMouseDown={handleMouseDown}
+        ></div>
+
         {/* Main Content - Node Editor */}
-        <div className="flex-1 overflow-hidden bg-white dark:bg-gray-800">
+        <div 
+          className={classNames(
+            "flex-1 overflow-hidden bg-white dark:bg-gray-800",
+            { 'select-none': isResizing } // Prevent text selection during resize
+          )}
+        >
           {selectedNode ? (
             <NodeEditor
               ref={nodeEditorRef} // Pass the ref here
