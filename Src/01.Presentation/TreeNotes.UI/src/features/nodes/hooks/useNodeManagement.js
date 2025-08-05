@@ -66,20 +66,36 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
   };
 
   const loadUserNodes = useCallback(async () => {
-    if( !window.__treeNeedsReloading )
-      return;
+    // Only proceed if a reload is explicitly requested or if nodes are not loaded yet
+    if( !window.__treeNeedsReloading && nodes.length > 0 && selectedNode) {
+        // If nodes are already loaded, and a selected node exists, and no explicit reload is requested, do nothing.
+        return; 
+    }
+
     setLoading(true);
     setError(null);
+    
+    // Capture the current state of the reload flag
+    const shouldSelectRootImmediately = window.__treeNeedsReloading; 
+    window.__treeNeedsReloading = false; // Reset flag as we are about to load
+
     try {
       const data = await nodeService.getUserNodes();
       setNodes(data.nodes || []);
+      
       if (data.nodes && data.nodes.length > 0) {
         const allNodesToOpen = processNodesToOpen(data.nodes);
         initializeAllNodesAsOpen(allNodesToOpen);
-      }
-      window.__treeNeedsReloading = false;
-      if (!selectedNode && data.nodes && data.nodes.length > 0) {
-        setSelectedNode(data.nodes[0]);
+
+        // Select the root node if it's the initial load (selectedNode is null) 
+        // or a forced reload after logout (shouldSelectRootImmediately is true).
+        if (shouldSelectRootImmediately || !selectedNode) { 
+            // Call handleNodeSelect directly which is now defined.
+            await handleNodeSelect(data.nodes[0]);
+        }
+      } else {
+        // If no nodes exist for the user (e.g., brand new account), ensure no node is selected.
+        setSelectedNode(null);
       }
     } catch (err) {
       setError('Failed to load nodes');
@@ -87,13 +103,15 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     } finally {
       setLoading(false);
     }
-  }, [selectedNode, setNodes, setSelectedNode, setLoading, setError, initializeAllNodesAsOpen]);
+  }, [nodes.length, selectedNode, setNodes, setSelectedNode, setLoading, setError, initializeAllNodesAsOpen]); // handleNodeSelect is now a stable reference
 
   useEffect(() => {
     if (user && user.token) {
       loadUserNodes();
     }
   }, [user, loadUserNodes]);
+
+
 
   const handleNodeSelect = useCallback(async (node) => {
     setError(null);
@@ -112,14 +130,11 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
       setSelectedNode(detailedNode);
       // Ensure the editor loses focus when a new node is selected
       // This is generally handled by React component lifecycle, but can be forced if needed.
-      // Forcing blur here might interfere with ReactQuill's internal logic,
-      // so we rely on component unmount and the new save mechanism.
     } catch (err) {
       setError(`Failed to load node content: ${err.message}`);
       console.error('Error loading node content:', err);
     } 
   }, [setSelectedNode, setError, nodeEditorRef]); // Add nodeEditorRef to dependencies
-
 
   const generateUniqueNodeName = useCallback((baseName, siblings) => {
     if (!siblings || siblings.length === 0) {

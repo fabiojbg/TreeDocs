@@ -5,6 +5,7 @@ import NodeTree from '../components/NodeTree';
 import NodeEditor from '../components/NodeEditor';
 import { useNavigate } from 'react-router-dom';
 import { useNodeManagement } from '../hooks/useNodeManagement';
+import { useNodeStore } from '../store/nodeStore';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -80,6 +81,10 @@ export default function DashboardPage() {
   }, [loadUserNodes]);
 
   const handleLogout = useCallback(async () => {
+    // Clear node store state on logout
+    useNodeStore.getState().clearState();
+    // Ensure tree reloads for the next user
+    window.__treeNeedsReloading = true; 
     logout();
     navigate('/login');
   }, [logout, navigate]);

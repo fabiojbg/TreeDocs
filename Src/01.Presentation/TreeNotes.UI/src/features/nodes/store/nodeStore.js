@@ -40,6 +40,14 @@ export const useNodeStore = create((set) => ({
   setSelectedNode: (node) => set({ selectedNode: node }),
   setLoading: (isLoading) => set({ loading: isLoading }),
   setError: (err) => set({ error: err }),
+
+  clearState: () => set({
+    nodes: [],
+    selectedNode: null,
+    openNodes: {},
+    error: null,
+    loading: false, // Optionally reset loading state too
+  }),
   
   toggleNode: (nodeId) => set((state) => ({
     openNodes: {
