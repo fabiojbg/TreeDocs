@@ -56,4 +56,6 @@ services:
     image: "datalust/seq"
     ports:
       - "5342:80"
+    environment:
+      - ACCEPT_EULA=Y
     restart: unless-stopped
