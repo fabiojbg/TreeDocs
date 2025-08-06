@@ -5,13 +5,13 @@ services:
       dockerfile: Dockerfile_TreeNotesService
     environment:
       - TreeNotesDb__ConnectionString=mongodb://admin:12345678a@mongodb:27017
-      - TreeNotesDb__DatabaseName=TreeNotesDb
+      - TreeNotesDb__DatabaseName=NoterDb
       - redis__configuration=redis:6379
-      #optionals:
+      # optionals:
       #- TreeNotesAuthenticationDb__ConnectionString=mongodb://admin:12345678a@mongodb:27017
-      #- TreeNotesAuthenticationDb__DatabaseName=TreeNotesUsers
       #- AuditDatabase__ConnectionString=mongodb://admin:12345678a@mongodb:27017
-      #- AuditDatabase__DatabaseName=TreeNotesAudit
+      - TreeNotesAuthenticationDb__DatabaseName=Users
+      - AuditDatabase__DatabaseName=AuditTrail
 
     depends_on:
       - redis
@@ -46,14 +46,14 @@ services:
     image: "mongo"
     ports:
       - "27018:27017"
-    restart: unless-stopped    
-
-  seq:
-    image: "datalust/seq"
     environment:
       - ACCEPT_EULA=Y
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=12345678a
+    restart: unless-stopped    
+
+  seq:
+    image: "datalust/seq"
     ports:
       - "5342:80"
     restart: unless-stopped
