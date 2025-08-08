@@ -36,11 +36,6 @@ export default function DashboardPage() {
       if (event.ctrlKey && event.key === 'n') {
         event.preventDefault();
         handleNodeCreate(selectedNode?.id || null, 'New Node', 'Document', '');
-      } else if (event.key === 'Delete' && selectedNode) {
-        event.preventDefault();
-        if (window.confirm(`Are you sure you want to delete "${selectedNode.name}" and all its children?`)) {
-          handleNodeDelete(selectedNode.id);
-        }
       } 
     };
 
