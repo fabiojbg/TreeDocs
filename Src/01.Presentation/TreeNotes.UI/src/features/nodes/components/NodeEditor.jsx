@@ -258,7 +258,7 @@ export default forwardRef(function NodeEditor({ node, onUpdate, onEditorFocusCha
           ref={reactQuillRef}
           value={contents}
           onChange={handleContentsChange}
-          className="h-full"
+          style={{ height: 'calc(100% - 44px)' }} // Apply requested to compensate toolbar height
           modules={{
             toolbar: [
               [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
