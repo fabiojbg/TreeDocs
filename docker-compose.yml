@@ -53,7 +53,7 @@ services:
     restart: unless-stopped    
 
   seq:
-    image: "datalust/seq"
+    image: "datalust/seq:5.1.3364"
     ports:
       - "5342:80"
     environment:
