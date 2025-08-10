@@ -19,6 +19,7 @@ export default function LoginPage() {
     try {
       const userData = await authService.login(email, password)
       login(userData)
+      window.__shouldSelectRootImmediately = true;
       navigate('/dashboard')
       toast.success('Logged in successfully!');
     } catch (err) {

@@ -76,7 +76,7 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
     setError(null);
     
     // Capture the current state of the reload flag
-    const shouldSelectRootImmediately = window.__treeNeedsReloading; 
+  
     window.__treeNeedsReloading = false; // Reset flag as we are about to load
 
     try {
@@ -87,10 +87,9 @@ export const useNodeManagement = (user, nodeEditorRef) => { // Accept nodeEditor
         const allNodesToOpen = processNodesToOpen(data.nodes);
         initializeAllNodesAsOpen(allNodesToOpen);
 
-        // Select the root node if it's the initial load (selectedNode is null) 
-        // or a forced reload after logout (shouldSelectRootImmediately is true).
-        if (shouldSelectRootImmediately || !selectedNode) { 
-            // Call handleNodeSelect directly which is now defined.
+        // the 'window.__shouldSelectRootImmediately' variable indicates the user has just sign in and we must select the root node in this case
+        if (window.__shouldSelectRootImmediately == true) { 
+            window.__shouldSelectRootImmediately = false;
             await handleNodeSelect(data.nodes[0]);
         }
       } else {
