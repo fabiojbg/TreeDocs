@@ -1,0 +1,26 @@
+# Stage 1: Build the React application
+FROM node:20-alpine AS build
+
+# Declare build argument for the service URL
+ENV TREE_NOTES_SERVICE_URL=http://localhost:5100
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the rest of the application source code
+COPY Src/01.Presentation/TreeNotes.UI/ ./
+
+# Stage 2: Serve the application with Nginx
+FROM nginx:alpine AS final
+
+# Copy the build output from the build stage to Nginx's default serving directory
+COPY --from=build /app /usr/share/nginx/html
+
+# Copy the custom Nginx configuration template
+COPY --from=build /app/Docker/default.conf.template /etc/nginx/templates/default.conf.template
+
+COPY Src/01.Presentation/TreeNotes.UI/Docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 80
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,5 +1,10 @@
-// api-config.js
-const API_BASE_URL = 'http://localhost:5100'; // Define your API base URL here
+// defaults.js
+window._env_ = {
+  TREE_NOTES_SERVICE_URL: "REPLACE_TREE_NOTES_SERVICE_URL"
+};
+
+const API_BASE_URL = (window._env_.TREE_NOTES_SERVICE_URL.indexOf("_TREE_NOTES_SERVICE_URL") >= 0 ?  window._env_.TREE_NOTES_SERVICE_URL 
+                                                                                               : "http://localhost:5100");
 
 toastr.options = {
   "closeButton": true,
