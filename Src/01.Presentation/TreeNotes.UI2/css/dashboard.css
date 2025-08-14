@@ -1,0 +1,292 @@
+#nodeEditor {
+    height: calc(100vh - 215px); /* Adjust based on header and padding */
+}
+
+/* Base styles for the main content area */
+#main-content-area {
+    display: flex;
+    flex-grow: 1; /* Allows it to take up available height */
+    overflow: hidden; /* Prevent content scrollbars, manage inside components */
+}
+
+/* Node Tree Sidebar */
+#nodeTreeSidebar {
+    /* Base width, will be overridden by JS for saved width */
+    width: 300px;
+    min-width: 200px; /* Minimum width for the sidebar */
+    max-width: 50%; /* Maximum width for the sidebar (e.g., half the screen) */
+    overflow-y: auto; /* Allow scrolling for tree content if it overflows vertically */
+    flex-shrink: 0; /* Prevent sidebar from shrinking below min-width */
+}
+
+/* Light mode specific styles for layout separation */
+#nodeTreeSidebar {
+    border-right: 1px solid #dee2e6; /* Light gray border for separation */
+    background-color: #1F2937 !important;
+}
+
+/* Resizable Splitter Bar */
+#splitter {
+    width: 8px; /* Width of the splitter bar */
+    cursor: ew-resize; /* East-West resize cursor */
+    background-color: #6c757d; /* Gray color for the splitter */
+    flex-shrink: 0; /* Prevent splitter from shrinking */
+    z-index: 100; /* Ensure it's above other elements if needed */
+    position: relative;
+}
+
+#splitter:hover {
+    background-color: #007bff; /* Highlight on hover */
+}
+
+/* Dark mode for splitter */
+body.dark-mode #splitter {
+    background-color: #495057; /* Darker gray for dark mode */
+}
+body.dark-mode #splitter:hover {
+    background-color: #007bff;
+}
+
+/* Node Editor Pane */
+#nodeEditorPane {
+    overflow-y: auto; /* Allow scrolling for editor content if it overflows vertically */
+}
+
+/* jsTree Dark Mode */
+/* Removed problematic 'background: transparent !important;' from base jstree-wholerow to allow proper highlighting */
+
+.dark-mode .jstree-default .jstree-hovered > .jstree-anchor {
+    color: #f8f9fa !important; /* Light text for contrast on darker blue hover */
+}
+
+.dark-mode .jstree-default .jstree-clicked > .jstree-anchor {
+    color: #f8f9fa !important; /* Light text for selected node for better visibility */
+}
+.dark-mode .jstree-default .jstree-last > .jstree-wholerow-ul {
+    background-color: #22364b; /* Consistent with new blue theme */
+}
+.dark-mode .jstree-ocl {
+    filter: invert(1); /* Keep the invert filter for icons */    
+    margin-top: 3px;
+}
+
+
+.dark-mode .jstree-default .jstree-wholerow-clicked { /* entire node row when selected */
+    background: #0D6EFD;
+    font-weight: 400;
+    padding-top: 16px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+}
+
+.dark-mode .jstree-default .jstree-wholerow-hovered{ /* entire node row when hovered */
+    background-color: rgb(55 65 81 / var(--tw-bg-opacity, 1));
+    padding-top: 16px;
+    padding-bottom: 10px;    
+border-radius: 10px;
+}
+
+/* Specific styling for the refresh button in the sidebar */
+#nodeTreeSidebar .btn-outline-primary {
+    border-color: #007bff !important;
+    color: #007bff !important;
+}
+
+#nodeTreeSidebar .btn-outline-primary:hover {
+    background-color: #007bff !important;
+    color: white !important;
+}
+/* Quill Editor Dark Mode */
+.dark-mode .ql-toolbar.ql-snow {
+    border-bottom: 1px solid #3b697e; /* Lighter blue border for toolbar */
+    background-color: #223446; /* Consistent with new blue theme */
+}
+
+/* Apply filter to all Quill toolbar buttons and picker labels in dark mode */
+.dark-mode .ql-snow.ql-toolbar button,
+.dark-mode .ql-snow.ql-toolbar .ql-picker-label {
+    filter: invert(1) brightness(1.7); /* Invert colors and increase brightness for visibility */
+}
+
+/* Reset filter for hover and active states of buttons/labels */
+.dark-mode .ql-snow.ql-toolbar button:hover,
+.dark-mode .ql-snow.ql-toolbar button.ql-active,
+.dark-mode .ql-snow.ql-toolbar .ql-picker-label:hover,
+.dark-mode .ql-snow.ql-toolbar .ql-picker-label.ql-active {
+    filter: none; /* Revert to original colors on hover/active */
+}
+.dark-mode .ql-container.ql-snow {
+    border: 1px solid #3b697e; /* Lighter blue border for editor */
+    background-color: #111827; /* Consistent with new blue theme */
+}
+
+.dark-mode .ql-snow .ql-editor pre.ql-syntax {
+  background-color:  #1C2833;
+  color: #f8f8f2;
+  overflow: visible;
+}
+
+.ql-snow .ql-editor pre.ql-syntax {
+  background-color:#1C2833;
+  color: #f8f8f2;
+  overflow: visible;
+}
+
+.dark-mode .ql-editor {
+    color: #f8f9fa;
+}
+
+.dark-mode .ql-editor.ql-blank::before {
+    color: #B0C4DE;
+}
+
+/* Note Header Styling - Light Mode */
+.note-header {
+    background-color: #f8f9fa; /* Light background */
+    color: #212529; /* Dark text */
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6; /* Light gray separator */
+}
+
+/* Apply border to quill editor in light mode */
+.ql-container.ql-snow {
+    border: 1px solid #dee2e6; /* Consistent with other light mode borders */
+}
+
+.note-header h5 {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-right: 10px;
+}
+
+.note-header i.bi-pencil-square {
+    cursor: pointer;
+    color: #007bff; /* Primary blue edit icon */
+}
+
+.note-header .timestamps {
+    font-size: 0.85em;
+    color: #6c757d; /* Muted text for timestamps */
+}
+
+/* Note Header Styling - Dark Mode */
+body.dark-mode .note-header {
+    background-color: #111827; /* Consistent with new dark blue theme for editor toolbar */
+    color: #f8f9fa; /* Light text */
+    border-bottom: 1px solid #3b697e; /* Subtle blue separator */
+}
+
+body.dark-mode .note-header h5 {
+    color: #f8f9fa;
+}
+
+body.dark-mode .note-header i.bi-pencil-square {
+    color: #007bff; /* Consistent primary blue edit icon */
+}
+
+body.dark-mode .note-header .timestamps {
+    color: #B0C4DE; /* Light text for dark mode timestamps */
+}
+
+/* Styling for the "Your Notes" title in the sidebar */
+.dark-mode .your-notes-title {
+    color: #f8f9fa !important; /* Light text for dark mode */
+}
+
+/* jsTree node icons */
+.jstree-default .jstree-themeicon-folder {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23B0C4DE' class='bi bi-folder-fill' viewBox='0 0 16 16'%3E%3Cpath d='M9.828 3h3.982a2 2 0 0 1 1.992 2.181L15.546 8H14.5a1 1 0 0 0-1 1h1.042l.354 1.636-.01.004c.17.653-.116 1.35-.765 1.455l-11.83.164c-.761.111-1.488-.314-1.637-1.043l-.011-.038-.807-3.646-.003-.01c-.001-.003-.001-.006-.002-.009A2 2 0 0 1 1.08 2.5V2a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3Zm-5.381 4.5v-.063a.5.5 0 0 1 .062-.27L7.042 4h-.057c.18.261.32.553.425.861-.735.478-1.547.887-2.387 1.15-.81.252-1.654.405-2.51.468C1.5 6.5 1 6 1 5.5V5c0-.5.5-1 1-1h1.6L5.5 5.5l-.01.026a2.155 2.155 0 0 1-.004.094Zm1.691 3.428-1.6-1.5A3 3 0 1 0 5.488 12 2.99 2.99 0 0 0 5 11.5a3 3 0 0 0 1.6-1.072Z'/%3E%3C/svg%3E") !important;
+    background-size: 16px 16px !important;
+}
+
+.jstree-default .jstree-themeicon-file {
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%23e3e3e3%22%3E%3Cpath%20d%3D%22M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33%200-56.5-23.5T160-160v-640q0-33%2023.5-56.5T240-880h320l240%20240v480q0%2033-23.5%2056.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200%20640-640Z%22%2F%3E%3C%2Fsvg%3E") !important;
+    background-size: 16px 16px !important;
+}
+
+/* Context Menu for jsTree (custom styling for dark mode) */
+.dark-mode .vakata-context {
+    background-color: #5e7a9e !important;
+    border: 1px solid #7f9cb7 !important;
+}
+
+.dark-mode .vakata-context a {
+    color: #f8f9fa !important;
+    background-color: transparent !important; /* Ensure background is transparent by default */
+}
+
+/* Ensure list items within the context menu also have a dark background */
+.dark-mode .vakata-context li > a {
+    background-color: #5e7a9e !important; /* Match the context menu's background for consistency */
+}
+
+.dark-mode .vakata-context a:hover,
+.dark-mode .vakata-context a.vakata-hover {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+.jstree-default .jstree-node {
+    min-height: 24px;
+    line-height: 24px;
+    margin-left: 24px;
+    min-width: 24px
+}
+.jstree-node {
+    font-size: 10pt;
+}
+
+.ql-editor .ql-size-small {
+  font-size: 0.90em;
+}
+.ql-editor 
+{
+  --ql-editor-base-font-size: 1.1em;
+  font-size: var(--ql-editor-base-font-size);
+}
+.ql-editor .ql-size-large {
+  font-size: 1.3em;
+}
+.ql-editor .ql-size-huge {
+  font-size: 1.8em;
+}
+pre
+{
+    font-size: var(--ql-editor-base-font-size);
+}
+
+/* Specific styling for the Bootstrap modals in dark mode */
+.dark-mode .modal-header,
+.dark-mode .modal-footer {
+    border-color: #3b697e !important; /* Consistent border for dark mode modals */
+}
+
+.dark-mode .modal-body {
+    background-color: #2C3E50; /* Match body background */
+    color: #f8f9fa; /* Light text */
+}
+
+.dark-mode .modal-title {
+    color: #f8f9fa;
+}
+
+.dark-mode .form-control {
+    background-color: #3b697e;
+    color: #f8f9fa;
+    border-color: #61849D;
+}
+
+.dark-mode .form-control::placeholder {
+    color: #B0C4DE;
+}
+
+.dark-mode .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.dark-mode .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}

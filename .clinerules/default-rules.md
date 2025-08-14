@@ -120,6 +120,17 @@ You must mantain this structure updated in case of any change in it or in file´
 │   │   │   ├── README.md # UI-specific documentation and development setup
 │   │   │   ├── tailwind.config.js # Tailwind CSS theme and plugin configuration
 │   │   │   └── vite.config.js # Vite build settings and API proxy configuration
+│   │   ├── TreeNotes.UI2/ # New vanilla JavaScript-based client application for hierarchical note-taking functionality
+│   │   │   ├── assets/ # Static assets like images and fonts
+│   │   │   ├── css/ # Custom and third-party CSS files (e.g., Bootstrap, style.css)
+│   │   │   ├── js/ # JavaScript files for login, registration, dashboard, and API configuration
+│   │   │   │   ├── api-config.js # Defines the base URL for API calls
+│   │   │   │   ├── dashboard.js # Main script for dashboard functionalities (jsTree, Quill, node operations)
+│   │   │   │   ├── login.js # Script for login page logic
+│   │   │   │   └── register.js # Script for registration page logic
+│   │   │   ├── login.html # Static HTML for the user login interface
+│   │   │   ├── register.html # Static HTML for new user registration
+│   │   │   └── dashboard.html # Static HTML for the main application dashboard
 │   │   └── TreeNotes.Service/ # Backend API service. Has no UI
 │   │       ├── appsettings.Development.json
 │   │       ├── appsettings.json
@@ -243,8 +254,9 @@ You must mantain this structure updated in case of any change in it or in file´
 # Module Responsibilities
 
 - **TreeNotes.Service**: Main backend service providing all service APIs. API-first approach, no UI.
-- **TreeNotes.ClientApp**: Client-side Blazor web application for user interaction. (Deprecated - will be replaced by TreeNotes.UI)
-- **TreeNotes.UI**: New React-based client application for user interaction with hierarchical note-taking functionality. Built with React, Tailwind CSS, and Vite.
+- **TreeNotes.ClientApp**: Client-side Blazor web application for user interaction. (Deprecated - will be replaced by TreeNotes.UI and TreeNotes.UI2)
+- **TreeNotes.UI**: React-based client application for hierarchical note-taking functionality. Built with React, Tailwind CSS, and Vite.
+- **TreeNotes.UI2**: New vanilla JavaScript-based client application providing hierarchical note-taking functionality. Built with Bootstrap, jQuery, jsTree, Quill, and toastr. It integrates directly with the TreeNotes.Service API.
 - **02.Application (Application layer)**: Orchestrates business logic, handles use cases, and coordinates between domain and persistence layers.
 - **03.Domain (Domain layer)**: Contains core business entities, aggregates, value objects, and domain services. Defines business rules and logic.
   - **TreeNotes.Domain**: Core domain models and logic.

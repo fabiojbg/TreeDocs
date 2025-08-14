@@ -1,0 +1,110 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Dark Mode styles */
+body.dark-mode {
+    background-color: #2C3E50; /* Dark blue background */
+    color: #f8f9fa; /* Light text */
+}
+
+body.dark-mode .navbar {
+    background-color: #2C3E50 !important; /* Darker blue navbar */
+    border-bottom: 1px solid #4A6572; /* Slightly lighter blue border */
+}
+
+body.dark-mode .navbar-brand {
+    color: #f8f9fa !important;
+}
+
+/* Styling for the user's full name in dark mode */
+body.dark-mode .user-full-name {
+    color: #f8f9fa !important; /* Light text for dark mode */
+}
+
+body.dark-mode .form-control {
+    background-color: #4A6572; /* Harmonize with new dark blue bg */
+    color: #f8f9fa;
+    border-color: #61849D;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #B0C4DE;
+}
+
+body.dark-mode .bg-light {
+    background-color: #2C3E50 !important; /* Harmonize with new dark blue bg */
+}
+
+body.dark-mode .bg-dark {
+    background-color: #1C2833 !important; /* Even darker blue for sidebar */
+}
+
+.dark-mode .btn-outline-primary {
+    border-color: #007bff !important; /* A primary purple for buttons */
+    color: #007bff !important;
+}
+
+.dark-mode .btn-outline-primary:hover {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+.dark-mode .btn-outline-danger {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.dark-mode .btn-outline-danger:hover {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Modal Styling */
+.modal-content {
+    background-color: #f8f9fa; /* Light background */
+    color: #212529; /* Dark text */
+}
+
+.dark-mode .modal-content {
+    background-color: #2C3E50; /* Darker blue background */
+    color: #f8f9fa; /* Light text */
+    border: 1px solid #4A6572;
+}
+
+.modal-header {
+    border-bottom-color: #dee2e6; /* Light border */
+}
+
+.dark-mode .modal-header {
+    border-bottom-color: #4A6572; /* Darker border */
+}
+
+.modal-title {
+    color: #212529; /* Dark text for light mode */
+}
+
+.dark-mode .modal-title {
+    color: #f8f9fa; /* Light text for dark mode */
+}
+
+.modal-footer {
+    border-top-color: #dee2e6; /* Light border */
+}
+
+.dark-mode .modal-footer {
+    border-top-color: #4A6572; /* Darker border */
+}
+
+.dark-mode .btn-close {
+    filter: invert(1); /* Invert close button for visibility in dark mode */
+}
+
+
+.jstree-default-small .jstree-anchor {
+    line-height: 18px;
+    height: 18px;
+    padding-top: 4px;
+}
