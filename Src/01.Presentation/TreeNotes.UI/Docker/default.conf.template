@@ -3,7 +3,9 @@ server {
     listen       80;
     listen  [::]:80;
     server_name  localhost;
-
+    
+    client_max_body_size 5M;
+    
     #access_log  /var/log/nginx/host.access.log  main;
 
     index  index.html index.htm;
