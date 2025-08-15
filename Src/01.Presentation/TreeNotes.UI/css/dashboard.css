@@ -28,8 +28,8 @@
 
 /* Offcanvas for mobile sidebar */
 #offcanvasNodeTree {
-    width: 70%; /* Adjust as needed for mobile sidebar width */
-    max-width: 300px; /* Max width for offcanvas */
+    width: 90%; /* Adjust as needed for mobile sidebar width */
+    
 }
 body.dark-mode #offcanvasNodeTree {
     background-color: #1F2937 !important;
