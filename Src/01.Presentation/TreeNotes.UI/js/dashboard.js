@@ -250,7 +250,7 @@ $(function() {
                 'themes': { 'name': 'default', 'responsive': true, 'variant': 'small' },
                 'sort': customTreeSort
             },
-            'plugins': ['dnd', 'contextmenu', 'wholerow'],
+            'plugins': ['contextmenu', 'wholerow'], // Removed 'dnd' for mobile (responsive)
             'contextmenu': { 'items': customMenu }
         });
 
