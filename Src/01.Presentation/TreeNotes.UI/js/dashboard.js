@@ -28,6 +28,11 @@ $(function() {
         }
         $('#loggedInUserFullName').text(userName || userEmail); // Display full name
         $('#userInitial').text(userName ? userName.charAt(0).toUpperCase() : userEmail.charAt(0).toUpperCase()); // Display initial
+        
+        // Populate profile modal fields immediately on auth check
+        $('#profileNameInput').val(userName || userEmail);
+        $('#profileEmailInput').val(userEmail);
+
         initDashboard();
     }
 
@@ -165,6 +170,57 @@ $(function() {
             }
         });
 
+        // Set up "Edit Profile" button click handler
+        $('#editProfileButton').on('click', function() {
+            const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+            // Populate current user info into the modal
+            $('#profileNameInput').val(localStorage.getItem('userName') || localStorage.getItem('userEmail'));
+            $('#profileEmailInput').val(localStorage.getItem('userEmail')); // Email is disabled
+            editProfileModal.show();
+        });
+
+        // Set up "Save Profile" button handler
+        $('#saveProfileButton').on('click', async function() {
+            const newName = $('#profileNameInput').val();
+            const userEmail = localStorage.getItem('userEmail');
+            const authToken = localStorage.getItem('authToken');
+            const userId = localStorage.getItem('userId'); // Assuming userId is stored, needed for update
+
+            if (!newName) {
+                toastr.error('Name cannot be empty.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/User`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        UserId: userId, 
+                        Name: newName,
+                        Email: userEmail // Keep email unchanged
+                    })
+                });
+
+                if (response.ok) {
+                    const updatedUser = await response.json();
+                    localStorage.setItem('userName', updatedUser.Name);
+                    $('#loggedInUserFullName').text(updatedUser.Name);
+                    $('#userInitial').text(updatedUser.Name.charAt(0).toUpperCase());
+                    toastr.success('Profile updated successfully!');
+                    bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
+                } else {
+                    const errData = await response.json();
+                    toastr.error(errData._Message || 'Failed to update profile.');
+                }
+            } catch (err) {
+                toastr.error('Network error during profile update.');
+            }
+        });
+
         // Set up "Change Password" button click handler
         $('#changePasswordButton').on('click', function() {
             const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
@@ -209,7 +265,7 @@ $(function() {
 
             try {
                 const authToken = localStorage.getItem('authToken');
-                const userEmail = localStorage.getItem('userEmail'); // Get userEmail for the payload
+                const userId = localStorage.getItem('userId'); // Assuming userId is available
 
                 const response = await fetch(`${API_BASE_URL}/api/User/ChangePassword`, {
                     method: 'PUT',
@@ -218,7 +274,7 @@ $(function() {
                         'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
-                        UserEmail: userEmail, // Use userEmail as identifier
+                        UserId: userId, // Use userId as identifier
                         OldPassword: oldPassword,
                         NewPassword: newPassword
                     })

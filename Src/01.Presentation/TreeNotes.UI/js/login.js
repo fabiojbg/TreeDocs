@@ -28,6 +28,7 @@ $(function() {
         localStorage.setItem('authToken', data.token || data.Token);
         localStorage.setItem('userEmail', data.email || data.Email);
         localStorage.setItem('userName', data.userName || data.Username);
+        localStorage.setItem('userId', data.id || data.Id); // Store userId
         toastr.success('Login successful');
         // Redirect to dashboard
         window.location.href = 'dashboard.html';

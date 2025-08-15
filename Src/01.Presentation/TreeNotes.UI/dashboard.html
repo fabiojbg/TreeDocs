@@ -33,6 +33,7 @@
                         <span id="userInitial">T</span>
                     </div>
                     <span class="navbar-text me-3 user-full-name" id="loggedInUserFullName"></span>
+                    <button class="btn btn-sm btn-primary me-2 text-white" id="editProfileButton">Edit Profile</button>
                     <button class="btn btn-sm btn-primary me-2 text-white" id="changePasswordButton">Change Password</button>
                     <button class="btn btn-sm btn-primary text-white" id="logoutButton">Logout</button>
                 </div>
@@ -121,6 +122,32 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="profileNameInput" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="profileNameInput">
+                    </div>
+                    <div class="mb-3">
+                        <label for="profileEmailInput" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="profileEmailInput" disabled>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveProfileButton">Save Changes</button>
                 </div>
             </div>
         </div>
