@@ -16,12 +16,15 @@
 <body style="overflow: hidden;">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
+            <button class="btn btn-primary d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNodeTree" aria-controls="offcanvasNodeTree">
+                <i class="bi bi-list"></i>
+            </button>
             <h1 href="#">TreeNotes</h1>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto"></ul>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
                 <div class="d-flex align-items-center">
                     <button id="darkModeToggle" class="btn btn-link me-2 text-warning fs-5 p-0" style="display: none;">
                         <i class="bi bi-sun-fill"></i>
@@ -37,32 +40,49 @@
         </div>
     </nav>
 
-    <div id="main-content-area" class="d-flex flex-grow-1" style="height: calc(100vh - 56px);">
-        <!-- Node Tree Sidebar -->
-        <div id="nodeTreeSidebar" class="p-3 d-flex flex-column" style="overflow-y: auto;">
+    <div id="main-content-area" class="d-flex flex-column flex-lg-row flex-grow-1" style="height: calc(100vh - 56px);">
+        <!-- Node Tree Sidebar / Offcanvas for mobile -->
+        <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="offcanvasNodeTree" aria-labelledby="offcanvasNodeTreeLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasNodeTreeLabel">Your Notes</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column" id="nodeTreeSidebarMobile">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 your-notes-title">Your Notes</h4>
+                    <button id="refreshTreeButton" class="btn btn-primary text-white btn-sm">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Tree
+                    </button>
+                </div>
+                <div id="nodeTree" class="flex-grow-1"></div>
+            </div>
+        </div>
+
+        <!-- Node Tree Sidebar (visible on large screens) -->
+        <div id="nodeTreeSidebar" class="p-3 d-none d-lg-flex flex-column" style="overflow-y: auto;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="mb-0 your-notes-title">Your Notes</h4>
-                <button id="refreshTreeButton" class="btn btn-primary text-white btn-sm">
+                <button id="refreshTreeButtonDesktop" class="btn btn-primary text-white btn-sm">
                     <i class="bi bi-arrow-clockwise"></i> Refresh Tree
                 </button>
             </div>
-            <div id="nodeTree" class="flex-grow-1"></div>
+            <div id="nodeTreeDesktop" class="flex-grow-1"></div>
         </div>
 
         <!-- Resizable Splitter Bar -->
-        <div id="splitter" class="resizable-bar"></div>
+        <div id="splitter" class="resizable-bar d-none d-lg-block"></div>
 
         <!-- Node Editor Pane -->
-        <div id="nodeEditorPane" class="flex-grow-1 d-flex flex-column">
-            <div class="note-header">
-                <h5 id="noteTitle" style="margin: 3px 5px 8px 0px">Select a Node</h5>
+        <div id="nodeEditorPane" class="flex-grow-1 d-flex flex-column p-0">
+            <div class="note-header align-items-center mb-0">
+                <h5 id="noteTitle" class="mb-2 me-2 text-truncate" style="vertical-align: middle;">Select a Node</h5>
                 <i class="bi bi-pencil-square" id="editNodeNameIcon"></i>
-                <button id="saveChangesButton" class="btn btn-primary text-white btn-sm ms-5" style="display: none;">
+                <button id="saveChangesButton" class="btn btn-primary text-white btn-sm ms-4" style="display: none;">
                     <i class="bi bi-cloud-arrow-up-fill"></i> Save Changes
                 </button>
-                <div class="timestamps">
+                <div class="timestamps d-none d-md-block">
                     Created: <span id="nodeCreatedOn">N/A</span> | Updated: <span id="nodeUpdatedOn">N/A</span>
-                  </div>
+                </div>
             </div>
             <div id="nodeEditor" class="flex-grow-1"></div>
         </div>

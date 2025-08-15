@@ -1,5 +1,5 @@
 #nodeEditor {
-    height: calc(100vh - 215px); /* Adjust based on header and padding */
+    height: calc(100vh - 300px); /* Adjust based on header and padding */
 }
 
 /* Base styles for the main content area */
@@ -10,19 +10,55 @@
 }
 
 /* Node Tree Sidebar */
-#nodeTreeSidebar {
-    /* Base width, will be overridden by JS for saved width */
-    width: 300px;
-    min-width: 200px; /* Minimum width for the sidebar */
-    max-width: 50%; /* Maximum width for the sidebar (e.g., half the screen) */
-    overflow-y: auto; /* Allow scrolling for tree content if it overflows vertically */
-    flex-shrink: 0; /* Prevent sidebar from shrinking below min-width */
+/* Base styles for the main content area */
+#main-content-area {
+    height: calc(100vh - 60px); /* Adjust based on header height */
 }
 
-/* Light mode specific styles for layout separation */
+/* Node Tree Sidebar (for desktop/large screens) */
 #nodeTreeSidebar {
-    border-right: 1px solid #dee2e6; /* Light gray border for separation */
+    width: 300px; /* Default desktop width */
+    min-width: 200px;
+    max-width: 50%;
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-right: 1px solid #dee2e6; /* Light gray border */
+    background-color: #1F2937 !important; /* Specific background */
+}
+
+/* Offcanvas for mobile sidebar */
+#offcanvasNodeTree {
+    width: 70%; /* Adjust as needed for mobile sidebar width */
+    max-width: 300px; /* Max width for offcanvas */
+}
+body.dark-mode #offcanvasNodeTree {
     background-color: #1F2937 !important;
+    color: #f8f9fa;
+}
+
+
+/* Adjustments for smaller screens */
+@media (max-width: 991.98px) { /* Bootstrap's 'lg' breakpoint (992px) */
+    #main-content-area {
+        flex-direction: column !important; /* Stack editor and tree vertically */
+    }
+
+    #nodeTreeSidebar, #splitter {
+        display: none !important; /* Hide desktop sidebar and splitter on smaller screens */
+    }
+
+    /* Ensure editor pane takes full width on mobile */
+    #nodeEditorPane {
+        width: 100% !important;
+    }
+    
+    .note-header .timestamps {
+        display: none !important; /* Hide timestamps on mobile / smaller screens */
+        /* original: display: block !important; was causing them to show, so reverted to none */
+    }
+    #noteTitle {
+        max-width: calc(100% - 100px); /* Adjust based on icon/button width */
+    }
 }
 
 /* Resizable Splitter Bar */
@@ -70,6 +106,15 @@ body.dark-mode #splitter:hover {
     margin-top: 3px;
 }
 
+/* Ensure default (non-selected/non-hovered) jstree node text is visible in dark mode */
+.dark-mode .jstree-default .jstree-anchor {
+    color: #f8f9fa !important; /* Light text for dark mode */
+}
+
+/* Ensure default (non-selected/non-hovered) jstree node background is dark in dark mode */
+.dark-mode .jstree-default .jstree-wholerow {
+    background-color: #1F2937 !important; /* Explicitly set dark background */
+}
 
 .dark-mode .jstree-default .jstree-wholerow-clicked { /* entire node row when selected */
     background: #0D6EFD;
@@ -115,6 +160,11 @@ border-radius: 10px;
 .dark-mode .ql-snow.ql-toolbar .ql-picker-label.ql-active {
     filter: none; /* Revert to original colors on hover/active */
 }
+.ql-container {
+  margin-bottom: 1.5em;
+  font-size: 14px;
+}
+
 .dark-mode .ql-container.ql-snow {
     border: 1px solid #3b697e; /* Lighter blue border for editor */
     background-color: #111827; /* Consistent with new blue theme */
@@ -233,7 +283,7 @@ body.dark-mode .note-header .timestamps {
     min-width: 24px
 }
 .jstree-node {
-    font-size: 10pt;
+    font-size: 1.0em; /* Adjust to a relative unit for better responsiveness, e.g., 1em or 16px */
 }
 
 .ql-editor .ql-size-small {
@@ -289,4 +339,16 @@ pre
 .dark-mode .btn-secondary:hover {
     background-color: #5a6268;
     border-color: #545b62;
+}
+@media (max-width: 768px) {
+
+    .jstree-default-responsive .jstree-anchor {
+        font-weight: normal;
+        font-size: 1.0em;       
+    }
+    .jstree-default-small .jstree-anchor {
+        line-height: 18px;
+        height: 18px;
+        padding-top: 12px;
+    }    
 }

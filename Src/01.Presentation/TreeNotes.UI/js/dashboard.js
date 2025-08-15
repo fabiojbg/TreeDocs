@@ -4,6 +4,8 @@ $(function() {
     let selectedNodeId = null;
     let isContentModified = false; // New flag to track content changes
     let nodeToSelectAfterReload = null;
+    let nodeTreeInstanceMobile = null; // Store jstree instance for mobile
+    let nodeTreeInstanceDesktop = null; // Store jstree instance for desktop
 
     // --- Content Management ---
     function showSaveChangesButton() {
@@ -31,7 +33,7 @@ $(function() {
 
     // --- Resizable Splitter Logic ---
     const splitter = document.getElementById('splitter');
-    const nodeTreeSidebar = document.getElementById('nodeTreeSidebar');
+    const nodeTreeSidebar = document.getElementById('nodeTreeSidebar'); // Desktop sidebar
     const nodeEditorPane = document.getElementById('nodeEditorPane');
     const minTreeWidth = 290; // Minimum width for the tree sidebar
     let maxTreeWidth;         // Will be calculated dynamically based on half of the main content area width
@@ -39,73 +41,94 @@ $(function() {
 
     let isDragging = false;
 
-    // Load saved width or set default
-    const savedTreeWidth = localStorage.getItem('nodeTreeWidth');
-    if (savedTreeWidth) {
-        nodeTreeSidebar.style.width = savedTreeWidth;
-    } else {
-        nodeTreeSidebar.style.width = '300px'; // Default width
+    function initSplitter() {
+        // Only enable splitter on large screens where desktop sidebar is visible
+        if (window.innerWidth >= 992) { // Corresponds to Bootstrap's 'lg' breakpoint
+            // Load saved width or set default
+            const savedTreeWidth = localStorage.getItem('nodeTreeWidth');
+            if (savedTreeWidth) {
+                nodeTreeSidebar.style.width = savedTreeWidth;
+            } else {
+                nodeTreeSidebar.style.width = '300px'; // Default width
+            }
+
+            splitter.addEventListener('mousedown', startDragging);
+            // Add the resize listener only once, outside the if/else, to keep it persistent.
+            // Removed: window.removeEventListener('resize', handleResizeForSplitter);
+            // Removed: window.addEventListener('resize', handleResizeForSplitter);
+        } else {
+            // Disable dragging if on mobile/small screen
+            splitter.removeEventListener('mousedown', startDragging);
+            // Removed: window.removeEventListener('resize', handleResizeForSplitter);
+        }
     }
 
-    splitter.addEventListener('mousedown', function(e) {
+    // Ensure the resize listener is always attached to the window
+    // This listener will call initSplitter() on every resize, letting it re-evaluate
+    // whether the splitter should be active or not.
+    window.removeEventListener('resize', handleResizeForSplitter); // Remove if already exists to prevent duplicates
+    window.addEventListener('resize', handleResizeForSplitter); // Add it once globally
+
+    function startDragging(e) {
         isDragging = true;
-        // Calculate maxTreeWidth based on current main-content-area width
         const mainContentArea = document.getElementById('main-content-area');
         maxTreeWidth = mainContentArea.offsetWidth / 2;
 
         document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        // Add a class to body to prevent text selection during dragging
+        document.addEventListener('mouseup', stopDragging);
         document.body.classList.add('no-select');
-    });
+    }
 
     function handleMouseMove(e) {
         if (!isDragging) return;
 
-        let newWidth = e.clientX; // Mouse X position is the new width of sidebar
+        let newWidth = e.clientX; 
 
-        // Constrain width
         newWidth = Math.max(minTreeWidth, newWidth);
         newWidth = Math.min(maxTreeWidth, newWidth);
 
         nodeTreeSidebar.style.width = `${newWidth}px`;
-        // The flex-grow-1 on nodeEditorPane will automatically adjust its width
     }
 
-    function handleMouseUp() {
+    function stopDragging() {
         isDragging = false;
         document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mouseup', stopDragging);
         document.body.classList.remove('no-select');
-        // Save the new width to local storage
         localStorage.setItem('nodeTreeWidth', nodeTreeSidebar.style.width);
     }
 
-    // Adjust maxTreeWidth if window is resized
-    window.addEventListener('resize', function() {
+    function handleResizeForSplitter() {
+        initSplitter(); // Re-evaluate splitter state on resize
         const mainContentArea = document.getElementById('main-content-area');
         maxTreeWidth = mainContentArea.offsetWidth / 2;
-        // Re-apply width if current width exceeds new max
         const currentWidth = parseInt(nodeTreeSidebar.style.width);
         if (currentWidth > maxTreeWidth) {
             nodeTreeSidebar.style.width = `${maxTreeWidth}px`;
             localStorage.setItem('nodeTreeWidth', nodeTreeSidebar.style.width);
-        } else if (currentWidth < minTreeWidth) {
-            // Also ensure it doesn't go below min on resize
+        } else if (currentWidth < minTreeWidth && nodeTreeSidebar.style.display !== 'none') {
             nodeTreeSidebar.style.width = `${minTreeWidth}px`;
             localStorage.setItem('nodeTreeWidth', nodeTreeSidebar.style.width);
         }
-    });
+    }
+
 
     $('#logoutButton').on('click', function() {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName'); // Clear userName on logout
+        localStorage.removeItem('userName'); 
         toastr.info('Logged out successfully.');
         window.location.href = 'login.html';
     });
 
+    // Event listener for mobile refresh button
     $('#refreshTreeButton').on('click', function() {
+        loadNodes();
+        toastr.info('Tree refreshed!');
+    });
+
+    // Event listener for desktop refresh button
+    $('#refreshTreeButtonDesktop').on('click', function() {
         loadNodes();
         toastr.info('Tree refreshed!');
     });
@@ -217,49 +240,80 @@ $(function() {
             }
         });
 
-        // Initialize jsTree
+        // Initialize jsTree instances by calling jstree() on elements.
+        // It's possible jstree may return undefined if the element is hidden (display: none),
+        // but we'll try to retrieve the instance explicitly afterwards.
         $('#nodeTree').jstree({
             'core': {
-                'data': [], // Will be loaded dynamically
-                'check_callback': true, // Allow drag & drop, etc.
-                'themes': {
-                    'name': 'default',
-                    'responsive': true,
-                    'variant': 'small' // Use 'small' variant for a compact look
-                },
-                'sort': function (a, b) { // Custom sort function to respect ChildrenOrder
-                    const tree = $('#nodeTree').jstree(true);
-                    const nodeA = tree.get_node(a);
-                    const nodeB = tree.get_node(b);
-
-                    const parentId = nodeA.parent;
-                    const parentNode = tree.get_node(parentId);
-
-                    if (parentNode && parentNode.data && parentNode.data.childrenOrder) {
-                        const order = parentNode.data.childrenOrder;
-                        const indexA = order.indexOf(nodeA.id);
-                        const indexB = order.indexOf(nodeB.id);
-
-                        if (indexA !== -1 && indexB !== -1) {
-                            return indexA - indexB;
-                        }
-                        if (indexA !== -1) return -1;
-                        if (indexB !== -1) return 1;
-                    }
-                    return nodeA.text.localeCompare(nodeB.text); // Default alphabetical sort
-                }
+                'data': [],
+                'check_callback': true,
+                'themes': { 'name': 'default', 'responsive': true, 'variant': 'small' },
+                'sort': customTreeSort
             },
-            'plugins': ['dnd', 'contextmenu', 'wholerow'], // Drag & Drop, Context Menu, Whole Row selection
-            'contextmenu': {
-                'items': customMenu
-            }
+            'plugins': ['dnd', 'contextmenu', 'wholerow'],
+            'contextmenu': { 'items': customMenu }
         });
 
-        loadNodes();
-        setupJSTreeEvents();
+        $('#nodeTreeDesktop').jstree({
+            'core': {
+                'data': [],
+                'check_callback': true,
+                'themes': { 'name': 'default', 'responsive': true, 'variant': 'small' },
+                'sort': customTreeSort
+            },
+            'plugins': ['dnd', 'contextmenu', 'wholerow'],
+            'contextmenu': { 'items': customMenu }
+        });
+
+        // Explicitly retrieve the jsTree instances after attempts to initialize them
+        nodeTreeInstanceMobile = $('#nodeTree').jstree(true);
+        nodeTreeInstanceDesktop = $('#nodeTreeDesktop').jstree(true);
+        
+        // Add console warnings if instances are not properly initialized
+        if (!nodeTreeInstanceMobile) {
+            console.warn('jsTree mobile instance is null or undefined after initialization attempt. It might be hidden on load.');
+        }
+        if (!nodeTreeInstanceDesktop) {
+            console.warn('jsTree desktop instance is null or undefined after initialization attempt. It might be hidden on load.');
+        }
+
+        loadNodes(); // Load nodes into both trees initially
+
+        // Set up jsTree events only if instances are valid
+        if (nodeTreeInstanceMobile) {
+            setupJSTreeEvents(nodeTreeInstanceMobile, '#nodeTree'); // Setup events for mobile tree
+        }
+        if (nodeTreeInstanceDesktop) {
+            setupJSTreeEvents(nodeTreeInstanceDesktop, '#nodeTreeDesktop'); // Setup events for desktop tree
+        }
+
         setupQuillAutoSave();
         updateDarkMode(true); // Force dark mode as default
         setupKeyboardShortcuts();
+        initSplitter(); // Initialize splitter logic
+    }
+
+    // Custom sort function for jsTree
+    function customTreeSort(a, b) {
+        const tree = this.get_plugin('core'); // Access core plugin from within the context of the instance
+        const nodeA = tree.get_node(a);
+        const nodeB = tree.get_node(b);
+
+        const parentId = nodeA.parent;
+        const parentNode = tree.get_node(parentId);
+
+        if (parentNode && parentNode.data && parentNode.data.childrenOrder) {
+            const order = parentNode.data.childrenOrder;
+            const indexA = order.indexOf(nodeA.id);
+            const indexB = order.indexOf(nodeB.id);
+
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB;
+            }
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+        }
+        return nodeA.text.localeCompare(nodeB.text); // Default alphabetical sort
     }
 
     // Custom context menu for jsTree
@@ -377,75 +431,109 @@ $(function() {
 
             modal.show();
         });
-    }
-
+    } // Missing closing brace added here
     // --- jsTree Events (Drag & Drop, Rename) ---
-    function setupJSTreeEvents() {
-        $('#nodeTree').on('rename_node.jstree', function (e, data) {
-            // The rename action is now handled by the custom context menu item/keyboard shortcut
-            // We just need to update the node name here if jstree's built-in rename is used directly
-            // However, since we're replacing the direct edit with a modal, this event often won't fire for manual edits.
-            // If it fires programmatically from set_text, we still want to save.
+    function setupJSTreeEvents(jstreeInstance, treeSelector) {
+        $(treeSelector).on('rename_node.jstree', function (e, data) {
             updateNodeName(data.node.id, data.text);
         }).on('move_node.jstree', async function (e, data) {
-            const tree = $('#nodeTree').jstree(true);
+            const tree = jstreeInstance; // Use the passed instance
             const movedNodeId = data.node.id;
             const newParentId = data.parent === '#' ? null : data.parent;
             const oldParentId = data.old_parent === '#' ? null : data.old_parent;
 
             let success = true;
 
-            // 1. Update the moved node's parent
             const updateMovedNodePayload = { NodeId: movedNodeId, ParentId: newParentId };
             success = await sendNodeUpdate(updateMovedNodePayload);
-            if (!success) {
-                loadNodes(); // Revert tree on failure
-                return;
-            }
+            if (!success) { loadNodes(); return; }
 
-            // 2. Update the new parent's children order
             if (newParentId !== null) {
                 const newParentNode = tree.get_node(data.parent);
                 const newNodeChildrenOrder = newParentNode.children;
                 if (newNodeChildrenOrder.length > 0) {
                     const updateNewParentOrderPayload = { NodeId: newParentId, ChildrenOrder: newNodeChildrenOrder };
                     success = await sendNodeUpdate(updateNewParentOrderPayload);
-                    if (!success) {
-                        loadNodes(); // Revert tree on failure
-                        return;
-                    }
+                    if (!success) { loadNodes(); return; }
                 }
             }
 
-            // 3. If parent changed, update the old parent's children order
             if (oldParentId !== null && oldParentId !== newParentId) {
                 const oldParentNode = tree.get_node(data.old_parent);
                 const oldNodeChildrenOrder = oldParentNode.children;
-                // Only send update if there are still children to order in the old parent
                 if (oldNodeChildrenOrder.length > 0) {
                     const updateOldParentOrderPayload = { NodeId: oldParentId, ChildrenOrder: oldNodeChildrenOrder };
                     success = await sendNodeUpdate(updateOldParentOrderPayload);
-                    if (!success) {
-                        loadNodes(); // Revert tree on failure
-                        return;
-                    }
+                    if (!success) { loadNodes(); return; }
                 }
             }
 
             if (success) {
                 toastr.success('Node moved/reordered successfully!');
-                loadNodes(); // Reload tree to reflect all changes and ensure sync
+                loadNodes();
             }
-        }).on('refresh.jstree', function() { // Changed to 'refresh.jstree'
-            setTimeout(function() { // Add a small delay to ensure DOM is fully updated
+        }).on('refresh.jstree', function() {
+            setTimeout(function() {
                 if( nodeToSelectAfterReload)
                 {
-                    const tree = $('#nodeTree').jstree(true);
+                    const tree = jstreeInstance;
                     if( tree )
                         tree.select_node(nodeToSelectAfterReload);
                     nodeToSelectAfterReload = null;
                 }
-            }, 0); // Delay by 0ms to defer execution
+            }, 0);
+        }).on('select_node.jstree', async function(e, data) { // Add select_node event here for both trees
+            if ($(this).attr('id') === 'nodeTree' && window.innerWidth < 992) {
+                // If on mobile, close the offcanvas when a node is selected from mobile tree
+                const offcanvasElement = document.getElementById('offcanvasNodeTree');
+                const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                if (bsOffcanvas) {
+                    bsOffcanvas.hide();
+                }
+            }
+
+            if (selectedNodeId && isContentModified) {
+                await saveNodeContents(selectedNodeId, quill.root.innerHTML, false);
+            }
+
+            selectedNodeId = data.node.id;
+            quill.enable(false);
+            quill.setText('Loading note content...');
+
+            hideSaveChangesButton();
+            isContentModified = false;
+
+            $('#noteTitle').text('Loading...');
+            $('#nodeCreatedOn').text('N/A');
+            $('#nodeUpdatedOn').text('N/A');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/nodes/${selectedNodeId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const nodeData = await response.json();
+                    const node = nodeData.Node;
+
+                    $('#noteTitle').text(node.Name);
+                    $('#nodeCreatedOn').text(formatDate(node.CreatedOn));
+                    $('#nodeUpdatedOn').text(formatDate(node.UpdatedOn));
+
+                    quill.setContents(quill.clipboard.convert(node.Contents || ''));
+                    quill.enable(true);
+                } else {
+                    const errData = await response.json();
+                    toastr.error(errData._Message || 'Failed to load note content.');
+                    quill.setText('Error loading content.');
+                }
+            } catch (err) {
+                toastr.error('Network error loading note content.');
+                quill.setText('Network error.');
+            }
         });
     }
 
@@ -614,20 +702,31 @@ $(function() {
             if (response.ok) {
                 const data = await response.json();
                 const jstreeData = convertNodesToJSTreeFormat(data.Nodes);
-                if( !nodeToSelectAfterReload)
-                    nodeToSelectAfterReload = jstreeData.length>0 ? jstreeData[0].id : null;
-                $('#nodeTree').jstree(true).settings.core.data = jstreeData;
-                $('#nodeTree').jstree(true).refresh();
+                if (!nodeToSelectAfterReload) {
+                    nodeToSelectAfterReload = jstreeData.length > 0 ? jstreeData[0].id : null;
+                }
+                
+                // Update both jstree instances
+                if (nodeTreeInstanceMobile) {
+                    nodeTreeInstanceMobile.settings.core.data = jstreeData;
+                    nodeTreeInstanceMobile.refresh();
+                }
+                if (nodeTreeInstanceDesktop) {
+                    nodeTreeInstanceDesktop.settings.core.data = jstreeData;
+                    nodeTreeInstanceDesktop.refresh();
+                }
+
             } else {
                 const errData = await response.json();
                 toastr.error(errData._Message || 'Failed to load nodes.');
-                if (response.status === 401) { // Unauthorized
-                    // setTimeout(() => window.location.href = 'login.html', 1500);
+                if (response.status === 401) {
+                    // setTimeout(() => window.location.href = 'login.html', 1500); // Re-enable if needed
                 }
             }
         } catch (err) {
+            console.log('Network error while loading nodes. Error=' + err);
             toastr.error('Network error while loading nodes.');
-            // setTimeout(() => window.location.href = 'login.html', 1500);
+            // setTimeout(() => window.location.href = 'login.html', 1500); // Re-enable if needed
         }
     }
 
@@ -677,55 +776,6 @@ $(function() {
         return jstreeNodes;
     }
 
-
-    $('#nodeTree').on('select_node.jstree', async function(e, data) {
-        // Before changing selectedNodeId, check if the previous node's content was modified
-        if (selectedNodeId && isContentModified) {
-            await saveNodeContents(selectedNodeId, quill.root.innerHTML, false); // Auto-save on node change, false for no toast
-        }
-
-        selectedNodeId = data.node.id;
-        quill.enable(false); // Disable editor while loading
-        quill.setText('Loading note content...'); // Show loading message
-
-        // Hide save button and reset flag on new node selection
-        hideSaveChangesButton();
-        isContentModified = false;
-
-        // Clear previous note header details
-        $('#noteTitle').text('Loading...');
-        $('#nodeCreatedOn').text('N/A');
-        $('#nodeUpdatedOn').text('N/A');
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/nodes/${selectedNodeId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                }
-            });
-
-            if (response.ok) {
-                const nodeData = await response.json();
-                const node = nodeData.Node;
-
-                $('#noteTitle').text(node.Name);
-                $('#nodeCreatedOn').text(formatDate(node.CreatedOn));
-                $('#nodeUpdatedOn').text(formatDate(node.UpdatedOn));
-
-                quill.setContents(quill.clipboard.convert(node.Contents || ''));
-                quill.enable(true);
-            } else {
-                const errData = await response.json();
-                toastr.error(errData._Message || 'Failed to load note content.');
-                quill.setText('Error loading content.');
-            }
-        } catch (err) {
-            toastr.error('Network error loading note content.');
-            quill.setText('Network error.');
-        }
-    });
-
     async function saveNodeContents(nodeId, contents, isManualSave = false) {
         try {
             const response = await fetch(`${API_BASE_URL}/api/v1/nodes`, {
@@ -772,14 +822,17 @@ $(function() {
         localStorage.setItem('darkMode', enable); // Still store preference in localStorage
     }
 
-    // This function is now redundant as we force dark mode and hide the button,
-    // but leaving it in its original place for file context.
+    // This function is now redundant as we force dark mode and hide the button.
+    // However, the dark mode toggle is part of the original HTML, so if it's ever
+    // re-enabled, this function provides the icon update.
     function updateDarkModeToggleIcon(isDarkMode) {
         const iconElement = $('#darkModeToggle i');
-        if (isDarkMode) {
-          iconElement.removeClass('bi-moon-fill').addClass('bi-sun-fill');
-        } else {
-          iconElement.removeClass('bi-sun-fill').addClass('bi-moon-fill');
+        if (iconElement.length > 0) { // Check if the element exists before manipulating
+            if (isDarkMode) {
+              iconElement.removeClass('bi-moon-fill').addClass('bi-sun-fill');
+            } else {
+              iconElement.removeClass('bi-sun-fill').addClass('bi-moon-fill');
+            }
         }
     }
 
