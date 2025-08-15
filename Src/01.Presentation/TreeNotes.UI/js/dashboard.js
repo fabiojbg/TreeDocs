@@ -654,7 +654,12 @@ $(function() {
             });
             if (response.ok) {
                 toastr.success('Node deleted successfully!');
-                $('#nodeTree').jstree(true).delete_node(nodeId); // Remove from tree locally
+                if (nodeTreeInstanceMobile) {
+                    nodeTreeInstanceMobile.delete_node(nodeId); // Remove from mobile tree locally
+                }
+                if (nodeTreeInstanceDesktop) {
+                    nodeTreeInstanceDesktop.delete_node(nodeId); // Remove from desktop tree locally
+                }
                 selectedNodeId = null; // Clear selected node
                 quill.setContents(''); // Clear editor
             } else {
