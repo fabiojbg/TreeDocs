@@ -283,7 +283,7 @@ body.dark-mode .note-header .timestamps {
     min-width: 24px
 }
 .jstree-node {
-    font-size: 1.0em; /* Adjust to a relative unit for better responsiveness, e.g., 1em or 16px */
+    font-size: 16px; /* Adjust to a relative unit for better responsiveness, e.g., 1em or 16px */
 }
 
 .ql-editor .ql-size-small {
@@ -343,12 +343,40 @@ pre
 @media (max-width: 768px) {
 
     .jstree-default-responsive .jstree-anchor {
-        font-weight: normal;
-        font-size: 1.0em;       
+        font-weight: normal !important;
+        font-size: 1.0em !important;       
+        text-shadow: none !important;
     }
+
     .jstree-default-small .jstree-anchor {
         line-height: 18px;
         height: 18px;
-        padding-top: 12px;
+        padding-top: 8px;
     }    
+
+    .jstree-default-responsive .jstree-themeicon-file {
+        width: 20px !important;
+    }
+
+    .jstree-default-responsive .jstree-wholerow {
+        border-top: 1px solid #4D5055;
+        background: #ebebeb;
+        height: 32px
+    }    
+    .jstree-default-responsive .jstree-icon,.jstree-default-responsive .jstree-icon:empty {
+        width: 40px;
+        height: 32px;
+        line-height: 32px
+    }
+
+    .jstree-default-responsive .jstree-children .jstree-last>.jstree-wholerow {
+        box-shadow:none; 
+    }
+    
+    .dark-mode .jstree-ocl {
+        filter: invert(1); /* Keep the invert filter for icons */
+        margin-top: -1px;
+        margin-bottom: 3px;
+    }
+
 }
