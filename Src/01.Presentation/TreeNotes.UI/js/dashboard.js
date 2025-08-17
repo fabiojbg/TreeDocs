@@ -233,8 +233,6 @@ $(function() {
                 const currentNodeName = $('#noteTitle').text();
                 showNodeNameModal('Rename Node', currentNodeName).then(newName => {
                     if (newName && newName !== '' && newName !== currentNodeName) {
-                        const tree = $('#nodeTree').jstree(true);
-                        tree.set_text(selectedNodeId, newName);
                         updateNodeName(selectedNodeId, newName);
                     }
                 });
@@ -307,8 +305,12 @@ $(function() {
                 'themes': { 'name': 'default', 'responsive': true, 'variant': 'small' },
                 'sort': customTreeSort
             },
-            'plugins': ['contextmenu', 'wholerow'], // Removed 'dnd' for mobile (responsive)
-            'contextmenu': { 'items': customMenu }
+            'plugins': ['contextmenu', 'wholerow', 'search'], // Removed 'dnd' for mobile (responsive)
+            'contextmenu': { 'items': customMenu },
+             "search": {
+                    "case_sensitive": false,
+                    "show_only_matches": true
+                }
         });
 
         $('#nodeTreeDesktop').jstree({
@@ -318,8 +320,12 @@ $(function() {
                 'themes': { 'name': 'default', 'responsive': true, 'variant': 'small' },
                 'sort': customTreeSort
             },
-            'plugins': ['dnd', 'contextmenu', 'wholerow'],
-            'contextmenu': { 'items': customMenu }
+            'plugins': ['dnd', 'contextmenu', 'wholerow', 'search'],
+            'contextmenu': { 'items': customMenu },
+             "search": {
+                    "case_sensitive": false,
+                    "show_only_matches": true
+                }
         });
 
         // Explicitly retrieve the jsTree instances after attempts to initialize them
@@ -398,7 +404,6 @@ $(function() {
                 'action': function (obj) {
                     showNodeNameModal('Rename Node', node.text).then(newName => {
                         if (newName && newName !== node.text) {
-                            tree.set_text(node.id, newName); // Update text in jstree
                             updateNodeName(node.id, newName);
                         }
                     });
@@ -488,7 +493,9 @@ $(function() {
 
             modal.show();
         });
-    } // Missing closing brace added here
+    }
+    
+    // Missing closing brace added here
     // --- jsTree Events (Drag & Drop, Rename) ---
     function setupJSTreeEvents(jstreeInstance, treeSelector) {
         $(treeSelector).on('rename_node.jstree', function (e, data) {
@@ -529,17 +536,18 @@ $(function() {
                 toastr.success('Node moved/reordered successfully!');
                 loadNodes();
             }
-        }).on('refresh.jstree', function() {
-            setTimeout(function() {
-                if( nodeToSelectAfterReload)
-                {
-                    const tree = jstreeInstance;
-                    if( tree )
-                        tree.select_node(nodeToSelectAfterReload);
-                    nodeToSelectAfterReload = null;
-                }
-            }, 0);
-        }).on('select_node.jstree', async function(e, data) { // Add select_node event here for both trees
+        })
+        .on('redraw.jstree Event', function() {
+            //  setTimeout(function() { // do not use timeouts in tree events because it is causing strange affects
+            //      if( nodeToSelectAfterReload)
+            //      {
+            //          if( jstreeInstance)
+            //              jstreeInstance.select_node(nodeToSelectAfterReload);
+            //          nodeToSelectAfterReload = null;
+            //      }
+            //  }, 0);
+        })
+        .on('select_node.jstree', async function(e, data) { // Add select_node event here for both trees
             if ($(this).attr('id') === 'nodeTree' && window.innerWidth < 992) {
                 // If on mobile, close the offcanvas when a node is selected from mobile tree
                 const offcanvasElement = document.getElementById('offcanvasNodeTree');
@@ -639,6 +647,9 @@ $(function() {
                 // Revert JSTree if API call fails
                 loadNodes();
             }
+
+            nodeTreeInstanceMobile.set_text(nodeId, newName);
+            nodeTreeInstanceDesktop.set_text(nodeId, newName);
         } catch (err) {
             console.log('Error during updating node content: ' + err);
             toastr.error('Network error during node rename.');
@@ -718,7 +729,6 @@ $(function() {
                 const node = tree.get_node(selectedNodeId);
                 showNodeNameModal('Rename Node', node.text).then(newName => {
                     if (newName && newName !== node.text) {
-                        tree.set_text(node.id, newName);
                         updateNodeName(node.id, newName);
                     }
                 });
@@ -906,5 +916,14 @@ $(function() {
     $(document).ready(function() {
         // Initial check for authentication and dashboard setup
         checkAuth();
+    });
+});
+
+$(document).ready(function () { // initialize text search input
+    $(".tree-search-input").keyup(function () {
+        var searchString = $(this).val(); 
+        $(".tree-search-input").val(searchString); // sync all tree search fields
+        $('#nodeTree').jstree('search', searchString);
+        $('#nodeTreeDesktop').jstree('search', searchString);
     });
 });

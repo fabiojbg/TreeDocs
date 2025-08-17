@@ -101,9 +101,14 @@ body.dark-mode #splitter:hover {
 .dark-mode .jstree-default .jstree-last > .jstree-wholerow-ul {
     background-color: #22364b; /* Consistent with new blue theme */
 }
+
 .dark-mode .jstree-ocl {
-    filter: invert(1); /* Keep the invert filter for icons */    
     margin-top: 3px;
+}
+
+.jstree-default-small>.jstree-no-dots .jstree-open>.jstree-ocl {
+    background-position: -39px -7px;
+    filter: invert(1); /* Keep the invert filter for icons */    
 }
 
 /* Ensure default (non-selected/non-hovered) jstree node text is visible in dark mode */
