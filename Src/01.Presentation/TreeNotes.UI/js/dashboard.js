@@ -154,15 +154,15 @@ $(function() {
             modules: {
                 toolbar: [
                     ['bold', 'italic', 'underline', 'strike'],
-                    ['blockquote', 'code-block'],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                     [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'color': [] }, { 'background': [] }],
                     [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'align': [] }],
+                    ['blockquote', 'code-block'],
                     [{ 'size': ['small', false, 'large', 'huge'] }],
                     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    [{ 'color': [] }, { 'background': [] }],
                     [{ 'font': [] }],
-                    [{ 'align': [] }],
                     ['link', 'image', 'video'],
                     ['clean']
                 ]
@@ -216,6 +216,7 @@ $(function() {
                     toastr.error(errData._Message || 'Failed to update profile.');
                 }
             } catch (err) {
+                console.log("Error saving profile:" + err);
                 toastr.error('Network error during profile update.');
             }
         });
@@ -291,6 +292,7 @@ $(function() {
                     toastr.error(errData._Message || 'Failed to change password. Please check your old password.');
                 }
             } catch (err) {
+                console.log("Error during password change:" + err);
                 toastr.error('Network error during password change.');
             }
         });
@@ -586,6 +588,7 @@ $(function() {
                     quill.setText('Error loading content.');
                 }
             } catch (err) {
+                console.log('Error during loading node content: ' + err);
                 toastr.error('Network error loading note content.');
                 quill.setText('Network error.');
             }
@@ -605,16 +608,15 @@ $(function() {
             if (response.ok) {
                 const newNode = await response.json();
                 toastr.success('Node created successfully!');
-                nodeToSelectAfterReload = newNode.Id;
+                nodeToSelectAfterReload = newNode.Id; // Indicates what node to select after reload
                 loadNodes(); // Reload tree to reflect changes
-                // Potentially select the new node
-                // $('#nodeTree').jstree(true).select_node(newnode.Id);
             } else {
                 const errData = await response.json();
                 toastr.error(errData._Message || 'Failed to create node.');
             }
         } catch (err) {
-            toastr.error('Network error during node creation.');
+            console.log('Error during node creation: ' + err);
+            toastr.error('Error during node creation.');
         }
     }
 
@@ -638,6 +640,7 @@ $(function() {
                 loadNodes();
             }
         } catch (err) {
+            console.log('Error during updating node content: ' + err);
             toastr.error('Network error during node rename.');
             loadNodes(); // Revert JSTree
         }
@@ -666,6 +669,7 @@ $(function() {
                 toastr.error(errData._Message || 'Failed to delete node.');
             }
         } catch (err) {
+            console.log('Error during node deletion: ' + err);
             toastr.error('Network error during node deletion.');
         }
     }
@@ -690,6 +694,7 @@ $(function() {
             return true; // Indicate success
 
         } catch (err) {
+            console.log('Error during node update: ' + err);
             toastr.error('Network error during node update.');
             loadNodes(); // Revert tree to server state on error
             return false; // Indicate failure
@@ -858,6 +863,7 @@ $(function() {
                 toastr.error(errData._Message || 'Failed to save note.');
             }
         } catch (err) {
+            console.log('Error during node update: ' + err);
             toastr.error('Network error during save.');
         }
     }

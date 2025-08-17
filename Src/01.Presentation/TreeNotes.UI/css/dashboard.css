@@ -108,16 +108,16 @@ body.dark-mode #splitter:hover {
 
 /* Ensure default (non-selected/non-hovered) jstree node text is visible in dark mode */
 .dark-mode .jstree-default .jstree-anchor {
-    color: #f8f9fa !important; /* Light text for dark mode */
+    color: #f8f9fa; /* Light text for dark mode */
 }
 
 /* Ensure default (non-selected/non-hovered) jstree node background is dark in dark mode */
 .dark-mode .jstree-default .jstree-wholerow {
-    background-color: #1F2937 !important; /* Explicitly set dark background */
+    background-color: #1F2937 /* Explicitly set dark background */
 }
 
 .dark-mode .jstree-default .jstree-wholerow-clicked { /* entire node row when selected */
-    background: #0D6EFD;
+    background: #0D6EFD  !important;
     font-weight: 400;
     padding-top: 16px;
     padding-bottom: 10px;
@@ -125,11 +125,12 @@ body.dark-mode #splitter:hover {
 }
 
 .dark-mode .jstree-default .jstree-wholerow-hovered{ /* entire node row when hovered */
-    background-color: rgb(55 65 81 / var(--tw-bg-opacity, 1));
+    background-color: rgb(55 65 81 / var(--tw-bg-opacity, 1)) !important;
     padding-top: 16px;
     padding-bottom: 10px;    
-border-radius: 10px;
+    border-radius: 10px;
 }
+
 
 /* Specific styling for the refresh button in the sidebar */
 #nodeTreeSidebar .btn-outline-primary {
@@ -378,5 +379,5 @@ pre
         margin-top: -1px;
         margin-bottom: 3px;
     }
-
+    
 }
