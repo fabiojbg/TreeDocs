@@ -93,7 +93,6 @@ namespace TreeNotes.Service
                         }
                         return Task.CompletedTask;
                     }
-                    
                 };
             });
             
@@ -140,10 +139,10 @@ namespace TreeNotes.Service
 
             app.UseRouting();
 
-            if (env.IsDevelopment())
-            {
-                app.UseSerilogRequestLogging();
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseSerilogRequestLogging();
+            //}
             app.UseAuthentication();
             app.UseAuthorization();
 

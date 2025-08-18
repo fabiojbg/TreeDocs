@@ -38,12 +38,12 @@ namespace Apps.Sdk.Middlewares
             }
             catch (UnauthorizedAccessException ex)
             {
-                _logger?.LogInformation(ex, $"UnauthorizedAccessException: {ex.Message}");
+                _logger?.LogWarning(ex, $"UnauthorizedAccessException: {ex.Message}");
                 await WriteRequestResponse(context.Response, HttpStatusCode.Unauthorized, ex.Message);
             }
             catch (ForbiddenException ex)
             {
-                _logger?.LogInformation(ex, $"ForbiddenException: {ex.Message}");
+                _logger?.LogWarning(ex, $"ForbiddenException: {ex.Message}");
                 await WriteRequestResponse(context.Response, HttpStatusCode.Forbidden, ex.Message);
             }
             catch (ObjectNotFoundException ex)

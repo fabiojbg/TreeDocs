@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Auth.Domain.Services;
 using Domain.Shared;
+using Auth.Domain.RequestsResponses;
 
 namespace Application.Common.Behaviours
 {
@@ -24,16 +25,24 @@ namespace Application.Common.Behaviours
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            var response = await next();
-
             try
             {
                 var name = typeof(TRequest).Name;
 
-                _logger.LogWarning("Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
-                    name, _timer.ElapsedMilliseconds, _currentUserService.GetLoggedUserId(), request);
+                if (request is AuthenticateUserRequest)
+                {  // avoid to log the user passoword.
+                    var authenticateRequest = request as AuthenticateUserRequest;
+                    _logger.LogInformation("Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                        name, _timer.ElapsedMilliseconds, _currentUserService.GetLoggedUserId(), 
+                        new { UserMail = authenticateRequest.UserEmail, UserIp = authenticateRequest.UserIP});
+                }
+                else
+                    _logger.LogInformation("Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                        name, _timer.ElapsedMilliseconds, _currentUserService.GetLoggedUserId(), request);
             }
             catch { }
+
+            var response = await next();
 
             return response;
         }

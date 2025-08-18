@@ -1,10 +1,11 @@
-﻿using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Auth.Domain.RequestsResponses;
 using Auth.Domain.Services;
 using Domain.Shared;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.Common.Behaviours
 {
@@ -34,8 +35,16 @@ namespace Application.Common.Behaviours
             {
                 var name = typeof(TRequest).Name;
 
-                _logger.LogWarning("Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}", 
-                    name, _timer.ElapsedMilliseconds, _currentUserService.GetLoggedUserId(), request);
+                if (request is AuthenticateUserRequest)
+                {  // avoid the logging of the user password.
+                    var authenticateRequest = request as AuthenticateUserRequest;
+                    _logger.LogWarning("Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                        name, _timer.ElapsedMilliseconds, _currentUserService.GetLoggedUserId(),
+                        new { UserMail = authenticateRequest.UserEmail, UserIp = authenticateRequest.UserIP });
+                }
+                else
+                    _logger.LogWarning("Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                        name, _timer.ElapsedMilliseconds, _currentUserService.GetLoggedUserId(), request);
             }
 
             return response;
