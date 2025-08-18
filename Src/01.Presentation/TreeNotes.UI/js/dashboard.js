@@ -1,5 +1,5 @@
 $(function() {
-    // API_BASE_URL is now defined in api-config.js
+    
     let quill;
     let selectedNodeId = null;
     let isContentModified = false; // New flag to track content changes
@@ -191,11 +191,10 @@ $(function() {
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/User`, {
+                const response = await tree_fetch(`api/User`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
                         UserId: userId, 
@@ -211,12 +210,8 @@ $(function() {
                     $('#userInitial').text(updatedUser.Name.charAt(0).toUpperCase());
                     toastr.success('Profile updated successfully!');
                     bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
-                } else {
-                    const errData = await response.json();
-                    toastr.error(errData._Message || 'Failed to update profile.');
                 }
             } catch (err) {
-                console.log("Error saving profile:" + err);
                 toastr.error('Network error during profile update.');
             }
         });
@@ -262,14 +257,12 @@ $(function() {
             // You might want to add more robust password validation (e.g., min length, complexity) here
 
             try {
-                const authToken = localStorage.getItem('authToken');
                 const userId = localStorage.getItem('userId'); // Assuming userId is available
 
-                const response = await fetch(`${API_BASE_URL}/api/User/ChangePassword`, {
+                const response = await tree_fetch(`api/User/ChangePassword`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
                         UserId: userId, // Use userId as identifier
@@ -285,12 +278,8 @@ $(function() {
                     $('#newPasswordInput').val('');
                     $('#confirmNewPasswordInput').val('');
                     bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
-                } else {
-                    const errData = await response.json();
-                    toastr.error(errData._Message || 'Failed to change password. Please check your old password.');
                 }
             } catch (err) {
-                console.log("Error during password change:" + err);
                 toastr.error('Network error during password change.');
             }
         });
@@ -573,11 +562,8 @@ $(function() {
             $('#nodeUpdatedOn').text('N/A');
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/v1/nodes/${selectedNodeId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    }
+                const response = await tree_fetch(`api/v1/nodes/${selectedNodeId}`, {
+                    method: 'GET'
                 });
 
                 if (response.ok) {
@@ -590,14 +576,12 @@ $(function() {
 
                     quill.setContents(quill.clipboard.convert(node.Contents || ''));
                     quill.enable(true);
-                } else {
-                    const errData = await response.json();
-                    toastr.error(errData._Message || 'Failed to load note content.');
+                } 
+                else {
                     quill.setText('Error loading content.');
                 }
             } catch (err) {
                 console.log('Error during loading node content: ' + err);
-                toastr.error('Network error loading note content.');
                 quill.setText('Network error.');
             }
         });
@@ -605,11 +589,10 @@ $(function() {
 
     async function createNode(parentId, name) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/nodes`, {
+            const response = await tree_fetch(`api/v1/nodes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({ ParentId: parentId, Name: name, NodeType: 0 }) // Assuming NodeType 0 is default/document
             });
@@ -618,87 +601,65 @@ $(function() {
                 toastr.success('Node created successfully!');
                 nodeToSelectAfterReload = newNode.Id; // Indicates what node to select after reload
                 loadNodes(); // Reload tree to reflect changes
-            } else {
-                const errData = await response.json();
-                toastr.error(errData._Message || 'Failed to create node.');
-            }
+            } 
         } catch (err) {
             console.log('Error during node creation: ' + err);
-            toastr.error('Error during node creation.');
         }
     }
 
     async function updateNodeName(nodeId, newName) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/nodes`, {
+            const response = await tree_fetch(`api/v1/nodes`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({ NodeId: nodeId, Name: newName })
             });
             if (response.ok) {
                 toastr.success('Node renamed successfully!');
                 $('#noteTitle').text(newName); // Update the note header with the new name
+                nodeTreeInstanceMobile.set_text(nodeId, newName);
+                nodeTreeInstanceDesktop.set_text(nodeId, newName);
             } else {
-                const errData = await response.json();
-                toastr.error(errData._Message || 'Failed to rename node.');
                 // Revert JSTree if API call fails
                 loadNodes();
             }
 
-            nodeTreeInstanceMobile.set_text(nodeId, newName);
-            nodeTreeInstanceDesktop.set_text(nodeId, newName);
         } catch (err) {
             console.log('Error during updating node content: ' + err);
-            toastr.error('Network error during node rename.');
             loadNodes(); // Revert JSTree
         }
     }
 
     async function deleteNode(nodeId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/nodes/${nodeId}`, {
+            const response = await tree_fetch(`api/v1/nodes/${nodeId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                }
             });
             if (response.ok) {
                 toastr.success('Node deleted successfully!');
-                if (nodeTreeInstanceMobile) {
-                    nodeTreeInstanceMobile.delete_node(nodeId); // Remove from mobile tree locally
-                }
-                if (nodeTreeInstanceDesktop) {
-                    nodeTreeInstanceDesktop.delete_node(nodeId); // Remove from desktop tree locally
-                }
+                nodeTreeInstanceMobile.delete_node(nodeId); // Remove from mobile tree locally
+                nodeTreeInstanceDesktop.delete_node(nodeId); // Remove from desktop tree locally
                 selectedNodeId = null; // Clear selected node
                 quill.setContents(''); // Clear editor
-            } else {
-                const errData = await response.json();
-                toastr.error(errData._Message || 'Failed to delete node.');
             }
         } catch (err) {
             console.log('Error during node deletion: ' + err);
-            toastr.error('Network error during node deletion.');
         }
     }
 
     async function sendNodeUpdate(payload) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/nodes`, {
+            const response = await tree_fetch(`api/v1/nodes`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                toastr.error(errData._Message || 'Failed to update node.');
                 loadNodes(); // Revert tree to server state on error
                 return false; // Indicate failure
             }
@@ -706,7 +667,6 @@ $(function() {
 
         } catch (err) {
             console.log('Error during node update: ' + err);
-            toastr.error('Network error during node update.');
             loadNodes(); // Revert tree to server state on error
             return false; // Indicate failure
         }
@@ -767,11 +727,8 @@ $(function() {
     // --- Node Tree (jsTree) Operations ---
     async function loadNodes() {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/nodes`, {
+            const response = await tree_fetch(`api/v1/nodes`, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                }
             });
 
             if (response.ok) {
@@ -791,17 +748,9 @@ $(function() {
                     nodeTreeInstanceDesktop.refresh();
                 }
 
-            } else {
-                const errData = await response.json();
-                toastr.error(errData._Message || 'Failed to load nodes.');
-                if (response.status === 401) {
-                    // setTimeout(() => window.location.href = 'login.html', 1500); // Re-enable if needed
-                }
             }
         } catch (err) {
             console.log('Network error while loading nodes. Error=' + err);
-            toastr.error('Network error while loading nodes.');
-            // setTimeout(() => window.location.href = 'login.html', 1500); // Re-enable if needed
         }
     }
 
@@ -853,11 +802,10 @@ $(function() {
 
     async function saveNodeContents(nodeId, contents, isManualSave = false) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/nodes`, {
+            const response = await tree_fetch(`api/v1/nodes`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({ NodeId: nodeId, NodeContents: contents })
             });
@@ -868,13 +816,9 @@ $(function() {
                 if (isManualSave) { // Only show toast for manual saves
                     toastr.success('Note saved successfully!');
                 }
-            } else {
-                const errData = await response.json();
-                toastr.error(errData._Message || 'Failed to save note.');
             }
         } catch (err) {
             console.log('Error during node update: ' + err);
-            toastr.error('Network error during save.');
         }
     }
 
