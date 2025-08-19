@@ -3,6 +3,7 @@ $(function() {
     let quill;
     let selectedNodeId = null;
     let isContentModified = false; // New flag to track content changes
+    let autoSaveTimeoutId = null;
     let nodeToSelectAfterReload = null;
     let nodeTreeInstanceMobile = null; // Store jstree instance for mobile
     let nodeTreeInstanceDesktop = null; // Store jstree instance for desktop
@@ -139,12 +140,29 @@ $(function() {
     });
 
     $('#saveChangesButton').on('click', async function() {
-        if (selectedNodeId && isContentModified) {
-            await saveNodeContents(selectedNodeId, quill.root.innerHTML, true); // Pass true to indicate manual save
-        } else {
-            toastr.info('No changes to save.');
-        }
+        await verifyAndSaveNodeContents(selectedNodeId, true);
     });
+
+    async function verifyAndSaveNodeContents(nodeId, isManualSave)
+    {
+        if (nodeId === selectedNodeId) // validate if the scheduled node to save is the same as the node selected
+        {
+            await saveNodeContents(nodeId, quill.root.innerHTML, isManualSave); // Pass true to indicate manual save
+        } else {
+            if( !isManualSave)
+                toastr.info('No changes to save.');
+        }
+    }
+
+    function clearAutoSave()
+    {
+        if( autoSaveTimeoutId)
+        {
+            clearTimeout(autoSaveTimeoutId);
+            autoSaveTimeoutId = null;
+            //console.log("auto save canceled");
+        }
+    }
 
     function initDashboard() {
         // Initialize Quill editor
@@ -718,8 +736,17 @@ $(function() {
     function setupQuillAutoSave() {
         quill.on('text-change', function(delta, oldDelta, source) {
             if (source === 'user') {
+                
+                if( !autoSaveTimeoutId )
+                {
+                    autoSaveTimeoutId = setTimeout(function(){ 
+                                                verifyAndSaveNodeContents(selectedNodeId, false); 
+                                                console.log("Note autosaved"); 
+                                            }, 10000);
+                    //console.log(`starting auto-saver timer for node ${selectedNodeId}...`);
+                }
                 isContentModified = true; // Mark content as modified
-                showSaveChangesButton(); // Show the save button
+                // showSaveChangesButton(); // Show the save button (removed because of the the auto save feature)
             }
         });
     }
@@ -816,9 +843,14 @@ $(function() {
                 if (isManualSave) { // Only show toast for manual saves
                     toastr.success('Note saved successfully!');
                 }
+                //console.log(`node ${nodeId} saved`);
             }
         } catch (err) {
             console.log('Error during node update: ' + err);
+        }
+        finally
+        {
+            clearAutoSave();
         }
     }
 
