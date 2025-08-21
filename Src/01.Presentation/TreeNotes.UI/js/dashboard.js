@@ -7,6 +7,17 @@ $(function() {
     let nodeToSelectAfterReload = null;
     let nodeTreeInstanceMobile = null; // Store jstree instance for mobile
     let nodeTreeInstanceDesktop = null; // Store jstree instance for desktop
+    const CLOSED_NODES_KEY = 'closedNodes'; // localStorage key for closed nodes
+
+    // --- Node State Management (Open/Closed) ---
+    function saveClosedNodes(closedNodeIds) {
+        localStorage.setItem(CLOSED_NODES_KEY, JSON.stringify(closedNodeIds));
+    }
+
+    function getClosedNodes() {
+        const closedNodesJson = localStorage.getItem(CLOSED_NODES_KEY);
+        return closedNodesJson ? JSON.parse(closedNodesJson) : [];
+    }
 
     // --- Content Management ---
     function showSaveChangesButton() {
@@ -503,10 +514,22 @@ $(function() {
     }
     
     // Missing closing brace added here
-    // --- jsTree Events (Drag & Drop, Rename) ---
+    // --- jsTree Events (Drag & Drop, Rename, Open/Close) ---
     function setupJSTreeEvents(jstreeInstance, treeSelector) {
         $(treeSelector).on('rename_node.jstree', function (e, data) {
             updateNodeName(data.node.id, data.text);
+        }).on('after_open.jstree', function (e, data) {
+            // Remove node from closed list when opened
+            const closedNodes = getClosedNodes();
+            const updatedClosedNodes = closedNodes.filter(id => id !== data.node.id);
+            saveClosedNodes(updatedClosedNodes);
+        }).on('after_close.jstree', function (e, data) {
+            // Add node to closed list when closed
+            const closedNodes = getClosedNodes();
+            if (!closedNodes.includes(data.node.id)) {
+                closedNodes.push(data.node.id);
+                saveClosedNodes(closedNodes);
+            }
         }).on('move_node.jstree', async function (e, data) {
             const tree = jstreeInstance; // Use the passed instance
             const movedNodeId = data.node.id;
@@ -793,17 +816,24 @@ $(function() {
 
         function processNode(node, parentId) {
             let iconClass = 'jstree-themeicon-file'; // Default to file icon
+            const closedNodes = getClosedNodes(); // Retrieve closed nodes from localStorage
+            let isInitiallyOpened = true;
 
             // Check if NodeType exists and if it's 1 (Folder)
             if (node.NodeType !== undefined && node.NodeType === 1) { // Assuming NodeType 1 is Folder
                 iconClass = 'jstree-themeicon-folder';
+                // If it's a folder, check if its ID is in the closedNodes list
+            }
+            if( node.ChildrenOrder && node.ChildrenOrder.length>0 &&
+                closedNodes.includes(node.Id)) {
+                    isInitiallyOpened = false;
             }
 
             jstreeNodes.push({
                 id: node.Id,
                 parent: parentId,
                 text: node.Name,
-                state: { opened: true }, // Keep nodes expanded by default
+                state: { opened: isInitiallyOpened }, // Set opened state based on localStorage
                 icon: iconClass, // Set custom icon
                 data: {
                     originalNode: node, // Store full original node data
