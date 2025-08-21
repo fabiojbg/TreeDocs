@@ -969,6 +969,7 @@ $(function() {
 });
 
 $(document).ready(function () { // initialize text search input
+    $(".tree-search-input").val("");
     $(".tree-search-input").keyup(function () {
         var searchString = $(this).val(); 
         $(".tree-search-input").val(searchString); // sync all tree search fields
