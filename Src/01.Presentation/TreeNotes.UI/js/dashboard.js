@@ -19,6 +19,35 @@ $(function() {
         return closedNodesJson ? JSON.parse(closedNodesJson) : [];
     }
 
+    function updateNodeState(jstreeInstance, nodeId, state)
+    {
+        if( !nodeId ) return;
+        const closedNodes = getClosedNodes();
+        if( state==='opened')
+        {
+            const updatedClosedNodes = closedNodes.filter(id => id !== nodeId);
+            saveClosedNodes(updatedClosedNodes);
+            // sync state between mobile and desktop trees
+            if( jstreeInstance === nodeTreeInstanceMobile)
+                nodeTreeInstanceDesktop.open_node(nodeId);
+            else
+                nodeTreeInstanceMobile.open_node(nodeId);
+        }
+        else
+        {
+            if (!closedNodes.includes(nodeId)) {
+                closedNodes.push(nodeId);
+                saveClosedNodes(closedNodes);
+            }
+            // sync state between mobile and desktop trees
+            if( jstreeInstance === nodeTreeInstanceMobile)
+                nodeTreeInstanceDesktop.close_node(dnodeId);
+            else
+                nodeTreeInstanceMobile.close_node(nodeId);
+        }
+    }
+
+
     // --- Content Management ---
     function showSaveChangesButton() {
         $('#saveChangesButton').show();
@@ -519,17 +548,12 @@ $(function() {
         $(treeSelector).on('rename_node.jstree', function (e, data) {
             updateNodeName(data.node.id, data.text);
         }).on('after_open.jstree', function (e, data) {
-            // Remove node from closed list when opened
-            const closedNodes = getClosedNodes();
-            const updatedClosedNodes = closedNodes.filter(id => id !== data.node.id);
-            saveClosedNodes(updatedClosedNodes);
+
+            updateNodeState(jstreeInstance, data.node.id, 'opened');
         }).on('after_close.jstree', function (e, data) {
             // Add node to closed list when closed
-            const closedNodes = getClosedNodes();
-            if (!closedNodes.includes(data.node.id)) {
-                closedNodes.push(data.node.id);
-                saveClosedNodes(closedNodes);
-            }
+            updateNodeState(jstreeInstance, data.node.id, 'closed');
+
         }).on('move_node.jstree', async function (e, data) {
             const tree = jstreeInstance; // Use the passed instance
             const movedNodeId = data.node.id;
