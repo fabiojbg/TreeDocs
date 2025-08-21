@@ -7,6 +7,7 @@ $(function() {
     let nodeToSelectAfterReload = null;
     let nodeTreeInstanceMobile = null; // Store jstree instance for mobile
     let nodeTreeInstanceDesktop = null; // Store jstree instance for desktop
+    let syncingState = false;
     const CLOSED_NODES_KEY = 'closedNodes'; // localStorage key for closed nodes
 
     // --- Node State Management (Open/Closed) ---
@@ -27,11 +28,19 @@ $(function() {
         {
             const updatedClosedNodes = closedNodes.filter(id => id !== nodeId);
             saveClosedNodes(updatedClosedNodes);
+            syncingState = true;
+            try
+            {
             // sync state between mobile and desktop trees
-            if( jstreeInstance === nodeTreeInstanceMobile)
-                nodeTreeInstanceDesktop.open_node(nodeId);
-            else
-                nodeTreeInstanceMobile.open_node(nodeId);
+                if( jstreeInstance === nodeTreeInstanceMobile)
+                    nodeTreeInstanceDesktop.open_node(nodeId);
+                else
+                    nodeTreeInstanceMobile.open_node(nodeId);
+            }
+            finally
+            {
+                syncingState = false;
+            }
         }
         else
         {
@@ -39,11 +48,19 @@ $(function() {
                 closedNodes.push(nodeId);
                 saveClosedNodes(closedNodes);
             }
-            // sync state between mobile and desktop trees
-            if( jstreeInstance === nodeTreeInstanceMobile)
-                nodeTreeInstanceDesktop.close_node(dnodeId);
-            else
-                nodeTreeInstanceMobile.close_node(nodeId);
+            syncingState = true;
+            try
+            {
+                // sync state between mobile and desktop trees
+                if( jstreeInstance === nodeTreeInstanceMobile)
+                    nodeTreeInstanceDesktop.close_node(nodeId);
+                else
+                    nodeTreeInstanceMobile.close_node(nodeId);
+            }
+            finally
+            {
+                syncingState = false;
+            }
         }
     }
 
@@ -513,6 +530,7 @@ $(function() {
             // Handle modal shown event to focus the input
             $('#nodeNameModal').on('shown.bs.modal', function () {
                 nodeNameInput.focus(); // Focus on input when modal is fully shown
+                nodeNameInput.select(); // Select all text in the input field
             });
 
             modal.show();
@@ -549,11 +567,12 @@ $(function() {
             updateNodeName(data.node.id, data.text);
         }).on('after_open.jstree', function (e, data) {
 
-            updateNodeState(jstreeInstance, data.node.id, 'opened');
+            if( !syncingState)
+                updateNodeState(jstreeInstance, data.node.id, 'opened');
         }).on('after_close.jstree', function (e, data) {
             // Add node to closed list when closed
-            updateNodeState(jstreeInstance, data.node.id, 'closed');
-
+            if( !syncingState)
+                updateNodeState(jstreeInstance, data.node.id, 'closed');
         }).on('move_node.jstree', async function (e, data) {
             const tree = jstreeInstance; // Use the passed instance
             const movedNodeId = data.node.id;
