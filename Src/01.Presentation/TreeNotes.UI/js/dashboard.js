@@ -257,7 +257,6 @@ $(function() {
         $('#saveProfileButton').on('click', async function() {
             const newName = $('#profileNameInput').val();
             const userEmail = localStorage.getItem('userEmail');
-            const authToken = localStorage.getItem('authToken');
             const userId = localStorage.getItem('userId'); // Assuming userId is stored, needed for update
 
             if (!newName) {
@@ -976,4 +975,10 @@ $(document).ready(function () { // initialize text search input
         $('#nodeTree').jstree('search', searchString);
         $('#nodeTreeDesktop').jstree('search', searchString);
     });
+    $(".tree-search-input").change(function () {
+        var v = $(this).val(); 
+        console.log(v);
+    });
+
 });
+
