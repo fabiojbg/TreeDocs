@@ -975,12 +975,48 @@ $(function() {
 });
 
 $(document).ready(function () { // initialize text search input
+    const treeSearchInputDesktop = $('#tree-search-input-desktop');
+    const clearSearchButtonDesktop = $('#clearSearchButtonDesktop');
+    const treeSearchInputMobile = $('#tree-search-input');
+    const clearSearchButtonMobile = $('#clearSearchButtonMobile');
+
+    // Function to update visibility of the clear button
+    function updateClearButtonVisibility(inputElement, clearButtonElement) {
+        if (inputElement.val()) {
+            clearButtonElement.removeClass('visually-hidden');
+        } else {
+            clearButtonElement.addClass('visually-hidden');
+        }
+    }
+
+    // Initialize visibility on page load for both desktop and mobile
+    updateClearButtonVisibility(treeSearchInputDesktop, clearSearchButtonDesktop);
+    updateClearButtonVisibility(treeSearchInputMobile, clearSearchButtonMobile); // Initialize mobile clear button visibility
+
     $(".tree-search-input").keyup(function () {
         var searchString = $(this).val(); 
         $(".tree-search-input").val(searchString); // sync all tree search fields
         $('#nodeTree').jstree('search', searchString);
         $('#nodeTreeDesktop').jstree('search', searchString);
+
+        // Update visibility for both search inputs after keyup
+        updateClearButtonVisibility(treeSearchInputDesktop, clearSearchButtonDesktop);
+        updateClearButtonVisibility(treeSearchInputMobile, clearSearchButtonMobile);
     });
 
-});
+    // Clear search button functionality for desktop
+    clearSearchButtonDesktop.on('click', function() {
+        treeSearchInputDesktop.val('');
+        $('#nodeTree').jstree('search', '');
+        $('#nodeTreeDesktop').jstree('search', '');
+        updateClearButtonVisibility(treeSearchInputDesktop, clearSearchButtonDesktop);
+    });
 
+    // Clear search button functionality for mobile
+    clearSearchButtonMobile.on('click', function() {
+        treeSearchInputMobile.val('');
+        $('#nodeTree').jstree('search', '');
+        $('#nodeTreeDesktop').jstree('search', '');
+        updateClearButtonVisibility(treeSearchInputMobile, clearSearchButtonMobile);
+    });
+});

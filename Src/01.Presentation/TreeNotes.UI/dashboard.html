@@ -55,8 +55,11 @@
                         <i class="bi bi-arrow-clockwise"></i> Refresh Tree
                     </button>
                 </div>
-                <div class="d-flex" style="border: 1px solid #59636d;padding: 2px 5px 2px 5px;">
-                    <input id="tree-search-input" class="form-control tree-search-input" style="width: 100%; margin: 3px;" placeholder="Search">
+                <div class="input-group" style="border: 1px solid #59636d; padding: 2px 5px 2px 5px;">
+                    <input id="tree-search-input" class="form-control tree-search-input" placeholder="Search" style="border: none; box-shadow: none; margin: 3px;">
+                    <button class="btn btn-outline-secondary visually-hidden" type="button" id="clearSearchButtonMobile" style="border: none;">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
                 </div>
                 <div id="nodeTree" class="flex-grow-1"></div>
             </div>
@@ -70,8 +73,11 @@
                     <i class="bi bi-arrow-clockwise"></i> Refresh Tree
                 </button>
             </div>
-            <div class="d-flex" style="border: 1px solid #59636d;padding: 2px 5px 2px 5px;">
-                <input id="tree-search-input-desktop" class="form-control tree-search-input" style="width: 100%; margin: 3px;" placeholder="Search">
+            <div class="input-group" style="border: 1px solid #59636d; padding: 2px 5px 2px 5px;">
+                <input id="tree-search-input-desktop" class="form-control tree-search-input" placeholder="Search" style="border: none; box-shadow: none; margin: 3px;">
+                <button class="btn btn-outline-secondary visually-hidden" type="button" id="clearSearchButtonDesktop" style="border: none;">
+                    <i class="bi bi-x-circle"></i>
+                </button>
             </div>
             <div id="nodeTreeDesktop" class="flex-grow-1"></div>
         </div>
