@@ -839,7 +839,14 @@ $(function() {
                     nodeTreeInstanceDesktop.settings.core.data = jstreeData;
                     nodeTreeInstanceDesktop.refresh();
                 }
-
+                setTimeout( function() {
+                    var searchString = $("#tree-search-input-desktop").val();
+                    if( searchString !== '')
+                    {
+                        $('#nodeTree').jstree('search', searchString);
+                        $('#nodeTreeDesktop').jstree('search', searchString);
+                    }
+                }, 100);
             }
         } catch (err) {
             console.log('Network error while loading nodes. Error=' + err);
@@ -968,16 +975,11 @@ $(function() {
 });
 
 $(document).ready(function () { // initialize text search input
-    $(".tree-search-input").val("");
     $(".tree-search-input").keyup(function () {
         var searchString = $(this).val(); 
         $(".tree-search-input").val(searchString); // sync all tree search fields
         $('#nodeTree').jstree('search', searchString);
         $('#nodeTreeDesktop').jstree('search', searchString);
-    });
-    $(".tree-search-input").change(function () {
-        var v = $(this).val(); 
-        console.log(v);
     });
 
 });
