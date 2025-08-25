@@ -70,38 +70,38 @@ namespace TreeNotes.Service.ApiController
             }
         }
 
-        /// <summary>
-        /// Sample endpoint to demonstrate background job execution while the request is finished.
-        /// </summary>
-        /// <param name="userEmail">The email of the user for testing.</param>
-        /// <returns>
-        /// An <see cref="IActionResult"/> with a success message.
-        /// </returns>
-        /// <response code="200">Always returns success with a test message.</response>
-        /// <response code="500">If an unexpected error occurs during background processing.</response>
-        [HttpGet]
-        [Route("test/{userEmail}")]
-        public async Task<IActionResult> GetTestUser(string userEmail)
-        {
-            try
-            {
-                // Sample of how to make background jobs running while request is finished
-                BackgroundWorker.RunWorkAsync(async (scope) =>
-                {
-                    await Task.Delay(2000);
-                    var mediator = scope.Resolve<IMediator>();
-                    var result = await Mediator.Send(new GetUserRequest { Email = userEmail });
-                }
-                );
+        ///// <summary>
+        ///// Sample endpoint to demonstrate background job execution while the request is finished.
+        ///// </summary>
+        ///// <param name="userEmail">The email of the user for testing.</param>
+        ///// <returns>
+        ///// An <see cref="IActionResult"/> with a success message.
+        ///// </returns>
+        ///// <response code="200">Always returns success with a test message.</response>
+        ///// <response code="500">If an unexpected error occurs during background processing.</response>
+        //[HttpGet]
+        //[Route("test/{userEmail}")]
+        //public async Task<IActionResult> GetTestUser(string userEmail)
+        //{
+        //    try
+        //    {
+        //        // Sample of how to make background jobs running while request is finished
+        //        BackgroundWorker.RunWorkAsync(async (scope) =>
+        //        {
+        //            await Task.Delay(2000);
+        //            var mediator = scope.Resolve<IMediator>();
+        //            var result = await Mediator.Send(new GetUserRequest { Email = userEmail });
+        //        }
+        //        );
 
-                return ToActionResult(new RequestResult<String>() { _Data = "Teste"} );
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "There was an error while getting user information");
-                return StatusCode((int)HttpStatusCode.InternalServerError, "Unexpected error while getting user information. Error=" + ex.Message);
-            }
-        }
+        //        return ToActionResult(new RequestResult<String>() { _Data = "Teste"} );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.LogError(ex, "There was an error while getting user information");
+        //        return StatusCode((int)HttpStatusCode.InternalServerError, "Unexpected error while getting user information. Error=" + ex.Message);
+        //    }
+        //}
 
         /// <summary>
         /// Creates a new user account. Anonymous access allowed.
